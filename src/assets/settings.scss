@@ -1,0 +1,25 @@
+$font-family-base: 'Roboto-Light';
+
+@font-face {
+  font-family: Roboto-Light;
+  src: url('./assets/fonts/Roboto-Light.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Roboto-Bold;
+  src: url('./assets/fonts/Roboto-Bold.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Roboto-Medium;
+  src: url('./assets/fonts/Roboto-Medium.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Roboto-Thin;
+  src: url('./assets/fonts/Roboto-Thin.ttf');
+  font-weight: normal;
+}

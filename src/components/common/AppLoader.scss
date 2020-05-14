@@ -1,0 +1,27 @@
+.outer {
+  width: 256px;
+  height: 256px;
+  position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+  text-align: center;
+
+  img {
+    max-width: 64px;
+    display: block;
+    margin: auto;
+    margin-bottom: 24px;
+  }
+
+  span {
+    display: block;
+    margin: auto;
+
+    &.text {
+      margin-top: 24px;
+    }
+  }
+}

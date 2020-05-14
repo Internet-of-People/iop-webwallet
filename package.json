@@ -9,6 +9,11 @@
   },
   "dependencies": {
     "@internet-of-people/sdk": "2.0.7",
+    "@fortawesome/fontawesome-svg-core": "1.2.19",
+    "@fortawesome/free-brands-svg-icons": "5.9.0",
+    "@fortawesome/free-regular-svg-icons": "5.9.0",
+    "@fortawesome/free-solid-svg-icons": "5.9.0",
+    "@fortawesome/vue-fontawesome": "0.1.6",
     "bootstrap": "4.5.0",
     "bootstrap-vue": "2.14.0",
     "core-js": "3.6.4",
@@ -20,6 +25,7 @@
     "vuex-class": "0.3.2"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-common-types": "0.2.25",
     "@typescript-eslint/eslint-plugin": "2.26.0",
     "@typescript-eslint/parser": "2.26.0",
     "@vue/cli-plugin-babel": "4.3.0",

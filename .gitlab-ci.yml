@@ -1,0 +1,17 @@
+stages:
+  - deploy
+  - docker
+
+docker:
+  stage: docker
+  image: docker:stable
+  only:
+    - master
+  before_script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - echo $CI_REGISTRY
+    - echo $CI_REGISTRY_IMAGE
+    - docker build -f docker/DockerFile -t $CI_REGISTRY_IMAGE/webwallet:latest .
+    - docker push $CI_REGISTRY_IMAGE/webwallet

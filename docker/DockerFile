@@ -1,3 +1,16 @@
-FROM nginx:stable-alpine
+FROM node:12.16.3-alpine
 
-COPY ./dist/ /usr/share/nginx/html
+RUN mkdir /root/source
+COPY . /root/source
+
+WORKDIR /root/source
+RUN rm -rf dist && rm -rf node_modules
+RUN yarn
+
+
+COPY docker/docker-entrypoint.sh /usr/local/bin/
+RUN chmod 777 /usr/local/bin/docker-entrypoint.sh
+RUN ln -s /usr/local/bin/docker-entrypoint.sh / # backwards compat
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+

@@ -1,9 +1,11 @@
+import AccessWallet from './AccessWallet.vue';
 import CreateWallet from './CreateWallet.vue';
 import Home from './Home.vue';
-import Wallet from './Wallet.vue';
+import UseWallet from './UseWallet.vue';
 
 export {
+  AccessWallet,
   CreateWallet,
   Home,
-  Wallet,
+  UseWallet,
 };

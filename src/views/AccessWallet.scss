@@ -1,0 +1,17 @@
+@import "../../node_modules/bootstrap/scss/bootstrap";
+
+.step-icon {
+  font-size: 2.5rem;
+  display:block;
+  margin:auto;
+}
+
+.card-button {
+  &.active {
+    :hover {
+        background-color:$primary;
+        color:white;
+        cursor: pointer;
+    }
+  }
+}

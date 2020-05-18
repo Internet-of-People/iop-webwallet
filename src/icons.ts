@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Vue from 'vue';
 import {
   faArrowRight,
+  faClipboardList,
   faShieldAlt,
   faUserAstronaut,
   faUserLock,
@@ -11,13 +12,16 @@ import {
 import {
   faSave,
   faCheckCircle,
+  faFileCode,
 } from '@fortawesome/free-regular-svg-icons';
 
 const setup = () => {
   library.add(
     faArrowRight, // <fa icon="arrow-right" />
     faCheckCircle, // <fa :icon="['far', 'check-circle']" />
+    faClipboardList, // <fa icon="clipboard-list" />
     faSave, // <fa :icon="['far', 'save']" />
+    faFileCode, // <fa :icon="['far', 'file-code']" />
     faShieldAlt, // <fa icon="shield-alt" />
     faUserAstronaut, // <fa icon="user-astronaut" />
     faUserLock, // <fa icon="user-lock" />

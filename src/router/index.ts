@@ -1,6 +1,11 @@
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
-import { CreateWallet, Home, Wallet } from '../views';
+import {
+  AccessWallet,
+  CreateWallet,
+  Home,
+  UseWallet,
+} from '../views';
 
 Vue.use(VueRouter);
 
@@ -17,8 +22,13 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/access',
-    name: 'Wallet',
-    component: Wallet,
+    name: 'AccessWallet',
+    component: AccessWallet,
+  },
+  {
+    path: '/use',
+    name: 'UseWallet',
+    component: UseWallet,
   },
 ];
 

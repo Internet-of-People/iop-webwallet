@@ -40,7 +40,7 @@
               </b-col>
             </b-row>
             <div class="mt-auto text-center">
-              <b-button :to="{'name':'Wallet'}" variant="primary">
+              <b-button :to="{'name':'AccessWallet'}" variant="primary">
                 ACCESS NOW
                 <fa icon="arrow-right" />
               </b-button>

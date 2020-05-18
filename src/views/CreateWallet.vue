@@ -2,7 +2,9 @@
   <b-container fluid="lg">
     <div class="my-5 text-center">
       <h1>Get a New Wallet</h1>
-      <h5>Already have a wallet? <b-link :to="{'name':'Home'}">Access My Wallet</b-link></h5>
+      <h5>
+        Already have a wallet? <b-link :to="{'name':'AccessWallet'}">Access My Wallet</b-link>
+      </h5>
     </div>
     <b-row>
       <b-col sm="12" lg="6" class="m-auto">

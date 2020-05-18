@@ -11,18 +11,19 @@ const routes: Array<RouteConfig> = [
     component: Home,
   },
   {
-    path: '/wallet/create',
+    path: '/create',
     name: 'CreateWallet',
     component: CreateWallet,
   },
   {
-    path: '/wallet',
+    path: '/access',
     name: 'Wallet',
     component: Wallet,
   },
 ];
 
 const router = new VueRouter({
+  base: '/wallet/',
   routes,
   mode: 'history',
 });

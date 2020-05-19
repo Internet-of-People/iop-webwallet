@@ -4,6 +4,7 @@ import Vue from 'vue';
 import {
   faArrowRight,
   faClipboardList,
+  faGlassCheers,
   faShieldAlt,
   faUserAstronaut,
   faUserLock,
@@ -20,6 +21,7 @@ const setup = () => {
     faArrowRight, // <fa icon="arrow-right" />
     faCheckCircle, // <fa :icon="['far', 'check-circle']" />
     faClipboardList, // <fa icon="clipboard-list" />
+    faGlassCheers, // <fa icon="glass-cheers" />
     faSave, // <fa :icon="['far', 'save']" />
     faFileCode, // <fa :icon="['far', 'file-code']" />
     faShieldAlt, // <fa icon="shield-alt" />

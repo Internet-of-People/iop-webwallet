@@ -13,16 +13,14 @@ export default class UseWallet extends Vue {
 
   @Getter('sdk') sdk!: SDK;
 
-  vault: Types.Crypto.Vault;
-
   beforeMount(): void {
     if (!this.serializedVault) {
       this.$router.push({ name: 'Home' });
       return;
     }
 
-    this.vault = this.sdk.Crypto.Vault.deserialize(this.serializedVault);
-    console.log(this.vault.createDid());
+    const vault = this.sdk.Crypto.Vault.deserialize(this.serializedVault);
+    console.log(vault.createDid());
   }
 }
 </script>

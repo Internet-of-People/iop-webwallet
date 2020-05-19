@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <h1 class="text-center mt-5 mb-5">Welcome to the Hydra Wallet!</h1>
+    <h1 class="text-center mt-5 mb-5 text-gradient">Welcome to the Hydra Web Wallet!</h1>
     <b-row>
       <b-col md="6" lg="5" class="ml-auto">
         <b-card class="mb-2 h-100" no-body bg-variant="light">
@@ -49,7 +49,6 @@
         </b-card>
       </b-col>
     </b-row>
-
   </b-container>
 </template>
 <script lang="ts">

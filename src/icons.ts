@@ -5,10 +5,14 @@ import {
   faArrowRight,
   faClipboardList,
   faGlassCheers,
+  faNetworkWired,
+  faRandom,
   faShieldAlt,
+  faSyncAlt,
   faUserAstronaut,
   faUserLock,
   faUserSecret,
+  faWallet,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faSave,
@@ -22,12 +26,16 @@ const setup = () => {
     faCheckCircle, // <fa :icon="['far', 'check-circle']" />
     faClipboardList, // <fa icon="clipboard-list" />
     faGlassCheers, // <fa icon="glass-cheers" />
-    faSave, // <fa :icon="['far', 'save']" />
+    faNetworkWired, // <fa icon="network-wired" />
     faFileCode, // <fa :icon="['far', 'file-code']" />
+    faRandom, // <fa icon="random" />
+    faSave, // <fa :icon="['far', 'save']" />
     faShieldAlt, // <fa icon="shield-alt" />
+    faSyncAlt, // <fa icon="sync-alt" />
     faUserAstronaut, // <fa icon="user-astronaut" />
     faUserLock, // <fa icon="user-lock" />
     faUserSecret, // <fa icon="user-secret" />
+    faWallet, // <fa icon="wallet" />
   );
   Vue.component('fa', FontAwesomeIcon);
 };

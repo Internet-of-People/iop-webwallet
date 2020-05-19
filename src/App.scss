@@ -7,10 +7,6 @@
   }
 }
 
-.main-content {
-  
-}
-
 .btn {
   font-family: Roboto-Medium;
 }
@@ -29,3 +25,34 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.card-icon {
+  font-size: 8rem;
+  margin: auto;
+  display: block;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 4.5rem;
+  }
+}
+
+.card-icon-md {
+  font-size: 8rem;
+  margin: auto;
+  display: block;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 3rem;
+  }
+}
+

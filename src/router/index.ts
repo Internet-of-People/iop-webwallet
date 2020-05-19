@@ -33,7 +33,6 @@ const routes: Array<RouteConfig> = [
 ];
 
 const router = new VueRouter({
-  base: '/wallet/',
   routes,
   mode: 'history',
 });

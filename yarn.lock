@@ -936,10 +936,8 @@
     "@internet-of-people/morpheus-crypto-wasm" "2.0.7"
     multibase "0.6.0"
 
-"@internet-of-people/sdk@2.0.7":
+"@internet-of-people/sdk@file:../morpheus-ts/packages/sdk":
   version "2.0.7"
-  resolved "https://registry.yarnpkg.com/@internet-of-people/sdk/-/sdk-2.0.7.tgz#d4205f090904d463377d97778109a84ed584c819"
-  integrity sha512-Ek7HHXPU1ihTfTWfbwF2x4u/MXORPtomxF+/Genpcg7Rt54Ol7GYoCISuBxaXtASRQkhLu2wItBOOnGZ2KKFsA==
   dependencies:
     "@arkecosystem/core-interfaces" "^2.6.31"
     "@arkecosystem/crypto" "^2.6.31"
@@ -2066,6 +2064,11 @@ bigint-hash@0.2.2:
     bigint-buffer "^1.1.2"
     bindings "^1.3.0"
     xxhashjs "^0.2.2"
+
+bignumber.js@9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.0.tgz#805880f84a329b5eac6e7cb6f8274b6d82bdf075"
+  integrity sha512-t/OYhhJ2SD+YGBQcjY8GzzDHEk9f3nerxjtfa6tlMXfe7frs/WozhvCNoGvpM0P3bNf3Gq5ZRMlGr5f3r4/N8A==
 
 binary-extensions@^1.0.0:
   version "1.13.1"

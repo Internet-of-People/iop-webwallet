@@ -47,19 +47,15 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Getter } from 'vuex-class';
-import { SDK } from '@/types';
 
 @Component
 export default class AccessWallet extends Vue {
-  @Getter('sdk') sdk!: SDK;
-
   keystoreFileSelected(event: Event): void {
     const element = event.target as HTMLInputElement;
     if (element.files) {
       const reader = new FileReader();
       reader.readAsText(element.files[0], 'UTF-8');
-      reader.onload = (_): any => {
+      reader.onload = (): any => {
         this.$store.dispatch('setSerializedVault', reader.result);
         this.$router.push({ name: 'UseWallet' });
       };

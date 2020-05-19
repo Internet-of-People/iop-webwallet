@@ -15,5 +15,12 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'import/prefer-default-export': 'off',
+    'lines-between-class-members': 'off',
+    'no-restricted-syntax': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/interface-name-prefix': 'off',
+    'class-methods-use-this': 'off',
+    'import/no-mutable-exports': 'off',
   },
 };

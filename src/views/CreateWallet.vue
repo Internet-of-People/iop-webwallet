@@ -192,7 +192,12 @@
       <fa class="success-icon mx-auto d-block my-4 text-success" :icon="['far', 'check-circle']" />
       <h4 class="text-center">Success</h4>
       <h6 class="text-center">You have created your wallet successfully.</h6>
-      <b-button :to="{'name':'Wallet'}" size="lg" variant="primary" class="mx-auto my-4 d-block">
+      <b-button
+        :to="{'name':'AccessWallet'}"
+        size="lg"
+        variant="primary"
+        class="mx-auto my-4 d-block"
+      >
         Access My Wallet
       </b-button>
     </b-modal>
@@ -200,13 +205,10 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Getter } from 'vuex-class';
-import { SDK } from '@/types';
+import { sdk } from '@/sdk';
 
 @Component
 export default class CreateWallet extends Vue {
-  @Getter('sdk') sdk!: SDK;
-
   mounted(): void {
     if (!localStorage.getItem('completed_tutorial')) {
       this.$bvModal.show('educate-modal1');
@@ -227,8 +229,8 @@ export default class CreateWallet extends Vue {
   }
 
   generateWallet(): void {
-    const phrase = new this.sdk.Crypto.Bip39('en').generatePhrase();
-    const vault = new this.sdk.Crypto.Vault(phrase);
+    const phrase = new sdk.Crypto.Bip39('en').generatePhrase();
+    const vault = new sdk.Crypto.Vault(phrase);
     const fileName = `hyd-wallet-UTC-${new Date().toISOString().replace(/:/g, '_')}.json`;
     const blob = new Blob([vault.serialize()], { type: 'application/json' });
     const link = document.createElement('a');

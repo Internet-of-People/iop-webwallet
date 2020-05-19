@@ -19,11 +19,11 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import Vue from 'vue';
+import { Component } from 'vue-property-decorator';
+import { load } from '@/sdk';
 import { AppLoader } from './components/common';
-import { SDK } from './types';
 
-const importSdk: Promise<SDK> = import('@internet-of-people/sdk');
 @Component({
   components: {
     AppLoader,
@@ -33,8 +33,7 @@ export default class App extends Vue {
   loading = true;
 
   async created(): Promise<void> {
-    const sdk: SDK = await importSdk;
-    this.$store.dispatch('setSdk', sdk);
+    await load();
     this.loading = false;
   }
 }

@@ -22,5 +22,6 @@ module.exports = {
     '@typescript-eslint/interface-name-prefix': 'off',
     'class-methods-use-this': 'off',
     'import/no-mutable-exports': 'off',
+    '@typescript-eslint/no-empty-interface': 'off'
   },
 };

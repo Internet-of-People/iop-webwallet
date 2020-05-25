@@ -19,7 +19,10 @@
             />
           </b-col>
           <b-col>
-            <NetworkSelector @onNetworkSelected="changeNetwork" />
+            <NetworkSelector
+              @onNetworkSelected="changeNetwork"
+              :selectedNetwork="selectedNetwork"
+            />
           </b-col>
         </b-row>
         <AddressList
@@ -36,9 +39,11 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { BigNumber } from 'bignumber.js';
-import { IAddressInfo, Network } from '@/types';
+import { IAddressInfo } from '@/types';
 import { sdk } from '@/sdk';
 import { AddressList, NetworkSelector, TotalBalance } from '@/components';
+import { namespace as inMemory } from '@/store/inmemory';
+import { namespace as persisted } from '@/store/persisted';
 
 @Component({
   components: {
@@ -48,15 +53,15 @@ import { AddressList, NetworkSelector, TotalBalance } from '@/components';
   },
 })
 export default class UseWallet extends Vue {
-  @Getter('serializedVault') serializedVault!: string;
+  @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
+  @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: string;
   loadingAddresses = true;
   totalBalance = '0';
   addressInfos: Array<IAddressInfo> = [];
   api!: any;
-  network: any = sdk.Network.Testnet;
 
   get symbol(): string {
-    switch (this.network) {
+    switch (this.network()) {
       case sdk.Network.Testnet:
         return 'THYD';
       case sdk.Network.Devnet:
@@ -78,15 +83,15 @@ export default class UseWallet extends Vue {
     this.refreshAddresses();
   }
 
-  async changeNetwork(network: Network): Promise<void> {
-    this.network = this.asSdkNetwork(network);
+  async changeNetwork(network: string): Promise<void> {
+    this.$store.dispatch(`${persisted}/setNetwork`, this.asSdkNetwork(network));
     await this.refreshAddresses();
   }
 
   async refreshAddresses(): Promise<void> {
     this.loadingAddresses = true;
 
-    this.api = await sdk.Layer1.createApi(this.network);
+    this.api = await sdk.Layer1.createApi(this.network());
     const addresses = [
       'tYkupfpnXHR9xtvWowscsWhyxvJLafb8ik',
       'tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J',
@@ -122,13 +127,17 @@ export default class UseWallet extends Vue {
     this.loadingAddresses = false;
   }
 
-  private asSdkNetwork(network: Network): any {
+  private network(): any {
+    return this.selectedNetwork ? this.selectedNetwork : sdk.Network.Testnet;
+  }
+
+  private asSdkNetwork(network: string): any {
     switch (network) {
-      case Network.Testnet:
+      case 'testnet':
         return sdk.Network.Testnet;
-      case Network.Devnet:
+      case 'devnet':
         return sdk.Network.Devnet;
-      case Network.Mainnet:
+      case 'mainnet':
         return sdk.Network.Mainnet;
       default:
         throw new Error(`Unknown network ${network}`);

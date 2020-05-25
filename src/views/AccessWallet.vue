@@ -47,6 +47,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import { namespace } from '@/store/inmemory';
 
 @Component
 export default class AccessWallet extends Vue {
@@ -56,7 +57,7 @@ export default class AccessWallet extends Vue {
       const reader = new FileReader();
       reader.readAsText(element.files[0], 'UTF-8');
       reader.onload = (): any => {
-        this.$store.dispatch('setSerializedVault', reader.result);
+        this.$store.dispatch(`${namespace}/setSerializedVault`, reader.result);
         this.$router.push({ name: 'UseWallet' });
       };
       reader.onerror = (evt: any) => {

@@ -6,6 +6,7 @@ import {
   faClipboardList,
   faGlassCheers,
   faNetworkWired,
+  faPlus,
   faRandom,
   faShieldAlt,
   faSyncAlt,
@@ -28,6 +29,7 @@ const setup = () => {
     faGlassCheers, // <fa icon="glass-cheers" />
     faNetworkWired, // <fa icon="network-wired" />
     faFileCode, // <fa :icon="['far', 'file-code']" />
+    faPlus, // <fa icon="plus" />
     faRandom, // <fa icon="random" />
     faSave, // <fa :icon="['far', 'save']" />
     faShieldAlt, // <fa icon="shield-alt" />

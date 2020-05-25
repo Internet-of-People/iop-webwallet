@@ -4,6 +4,7 @@ import { PersistedState } from './types';
 
 const getters: GetterTree<PersistedState, WalletRootState> = {
   selectedNetwork: (state) => state.selectedNetwork,
+  vaultState: (state) => state.vaultState,
 };
 
 export default getters;

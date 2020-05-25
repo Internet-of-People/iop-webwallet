@@ -28,20 +28,26 @@
         <AddressList
           :loading="loadingAddresses"
           :symbol="symbol"
-          :addressInfos="addressInfos"
+          :rows="addressRows"
           @onRefreshClicked="refreshAddresses"
+          @onAddClicked="onAddClicked"
         />
       </b-col>
     </b-row>
+    <NewAddressModal @onSave="onNewAddressSaved" :network="selectedNetwork" />
   </b-container>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { BigNumber } from 'bignumber.js';
-import { IAddressInfo } from '@/types';
+import { VaultState, AddressInfo } from '@/types';
+import { humanReadableFlakes } from '@/utils';
 import { sdk } from '@/sdk';
-import { AddressList, NetworkSelector, TotalBalance } from '@/components';
+import {
+  AddressList, NetworkSelector, NewAddressModal, TotalBalance,
+} from '@/components';
+import { AddressListRowInfo } from '@/components/AddressList';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 
@@ -49,15 +55,17 @@ import { namespace as persisted } from '@/store/persisted';
   components: {
     AddressList,
     NetworkSelector,
+    NewAddressModal,
     TotalBalance,
   },
 })
 export default class UseWallet extends Vue {
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: string;
+  @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
   loadingAddresses = true;
+  addressRows: Array<AddressListRowInfo> = [];
   totalBalance = '0';
-  addressInfos: Array<IAddressInfo> = [];
   api!: any;
 
   get symbol(): string {
@@ -80,51 +88,69 @@ export default class UseWallet extends Vue {
   }
 
   async mounted(): Promise<void> {
+    this.api = await sdk.Layer1.createApi(this.network());
     this.refreshAddresses();
+  }
+
+  onAddClicked(): void {
+    this.$bvModal.show('add-address-modal');
   }
 
   async changeNetwork(network: string): Promise<void> {
     this.$store.dispatch(`${persisted}/setNetwork`, this.asSdkNetwork(network));
+    this.api = await sdk.Layer1.createApi(this.network());
     await this.refreshAddresses();
   }
 
   async refreshAddresses(): Promise<void> {
     this.loadingAddresses = true;
 
-    this.api = await sdk.Layer1.createApi(this.network());
-    const addresses = [
+    const MOCK_MAP = [
       'tYkupfpnXHR9xtvWowscsWhyxvJLafb8ik',
       'tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J',
       'tpV6L8Xz2kB5f2B9ASkXxiLT8VHyQ2mtdP',
     ];
-    const promises = [];
-    for (const address of addresses) {
-      promises.push(this.api.getWallet(address));
-    }
+
+    let totalFlakes = new BigNumber(0);
+    const addressRows: Array<AddressListRowInfo> = [];
+
+    const promises: Array<Promise<any>> = [];
+    this.vaultState.get(0)?.forEach((value: AddressInfo) => {
+      promises.push(this.api.getWallet(MOCK_MAP[value.index]));
+    });
 
     const wallets = await Promise.all(promises);
-    const existingWallets = wallets
-      .filter((wallet) => wallet.isPresent())
-      .map((wallet) => wallet.get());
-    const bignums = existingWallets.map((wallet) => sdk.Ark.Utils.BigNumber.make(wallet.balance));
 
-    const addressInfos: Array<IAddressInfo> = [];
-    for (const wallet of existingWallets) {
-      addressInfos.push({
-        address: wallet.address,
-        balance: new BigNumber(wallet.balance).dividedBy(1e8).toFormat(4),
+    for (const [index, info] of this.vaultState.get(0)!) {
+      if (info.network !== this.selectedNetwork) {
+        continue;
+      }
+
+      const address = MOCK_MAP[index];
+      const wallet = wallets[index];
+      const balance = wallet.isPresent() ? wallet.get().balance : '0';
+      const newAddressInfo = {
+        ...info,
+        balance,
+      };
+
+      this.$store.dispatch(`${persisted}/addAddress`, newAddressInfo);
+      totalFlakes = totalFlakes.plus(balance);
+      addressRows.push({
+        address,
+        alias: info.alias,
+        balance: humanReadableFlakes(new BigNumber(balance)),
       });
     }
 
-    const sumFlake = new BigNumber(
-      bignums.reduce((a, b) => a.plus(b), sdk.Ark.Utils.BigNumber.ZERO).toFixed(),
-    );
-    const sumHyd = sumFlake.dividedBy(1e8);
-
-    this.addressInfos = addressInfos;
-    this.totalBalance = sumHyd.toFormat(4);
-
+    this.totalBalance = humanReadableFlakes(totalFlakes);
+    this.addressRows = addressRows;
     this.loadingAddresses = false;
+  }
+
+  private async onNewAddressSaved(info: AddressInfo): Promise<void> {
+    this.$store.dispatch(`${persisted}/addAddress`, info);
+    await this.refreshAddresses();
   }
 
   private network(): any {

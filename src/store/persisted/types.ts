@@ -1,4 +1,6 @@
+import { VaultState } from '@/types';
+
 export interface PersistedState {
   selectedNetwork: any;
-  numberOfAddedAddresses: number;
+  vaultState: VaultState;
 }

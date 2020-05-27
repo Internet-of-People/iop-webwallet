@@ -3,14 +3,17 @@ import { AddressInfo } from '@/types';
 import { PersistedState } from './types';
 
 const mutations: MutationTree<PersistedState> = {
-  SET_NETWORK: (state: PersistedState, value: string): void => {
-    state.selectedNetwork = value;
+  SET_NETWORK: (state: PersistedState, network: string): void => {
+    state.selectedNetwork = network;
+    if (!state.vaultState[network]) {
+      state.vaultState[network] = { 0: {} };
+    }
   },
   ADD_ADDRESS: (state: PersistedState, addressInfo: AddressInfo): void => {
-    state.vaultState.get(0)?.set(addressInfo.index, addressInfo);
+    state.vaultState[addressInfo.network][0][addressInfo.index] = addressInfo;
   },
-  REMOVE_ADDRESS: (state: PersistedState, index: number): void => {
-    state.vaultState.get(0)?.delete(index);
+  REMOVE_ADDRESS: (state: PersistedState, addressInfo: AddressInfo): void => {
+    delete state.vaultState[addressInfo.network][0][addressInfo.index];
   },
 };
 

@@ -10,8 +10,8 @@ const actions: ActionTree<PersistedState, WalletRootState> = {
   addAddress({ commit }, addressInfo: AddressInfo): void {
     commit('ADD_ADDRESS', addressInfo);
   },
-  removeAddress({ commit }, address: string): void {
-    commit('REMOVE_ADDRESS', address);
+  removeAddress({ commit }, addressInfo: AddressInfo): void {
+    commit('REMOVE_ADDRESS', addressInfo);
   },
 };
 

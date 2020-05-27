@@ -115,19 +115,20 @@ export default class UseWallet extends Vue {
     const addressRows: Array<AddressListRowInfo> = [];
 
     const promises: Array<Promise<any>> = [];
-    this.vaultState.get(0)?.forEach((value: AddressInfo) => {
-      promises.push(this.api.getWallet(MOCK_MAP[value.index]));
+
+    Object.keys(this.vaultState[this.selectedNetwork][0]).forEach((index: string) => {
+      promises.push(this.api.getWallet(MOCK_MAP[parseInt(index, 10)]));
     });
 
     const wallets = await Promise.all(promises);
 
-    for (const [index, info] of this.vaultState.get(0)!) {
+    for (const [index, info] of Object.entries(this.vaultState[this.selectedNetwork][0])) {
       if (info.network !== this.selectedNetwork) {
         continue;
       }
 
-      const address = MOCK_MAP[index];
-      const wallet = wallets[index];
+      const address = MOCK_MAP[parseInt(index, 10)];
+      const wallet = wallets[parseInt(index, 10)];
       const balance = wallet.isPresent() ? wallet.get().balance : '0';
       const newAddressInfo = {
         ...info,

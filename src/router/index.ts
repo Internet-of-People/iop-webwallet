@@ -32,9 +32,10 @@ const routes: Array<RouteConfig> = [
     component: Dashboard,
   },
   {
-    path: '/send',
+    path: '/send/:ticker/:from?',
     name: 'Send',
     component: Send,
+    props: true,
   },
 ];
 

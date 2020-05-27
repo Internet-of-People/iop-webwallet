@@ -42,7 +42,9 @@
                     <template v-slot:button-content>
                       <fa icon="ellipsis-v" />
                     </template>
-                    <b-dropdown-item href="#">
+                    <b-dropdown-item
+                      @click="onSendButtonClick(`${info.accountIndex}.${info.addressIndex}`)"
+                    >
                       <fa :icon="['far', 'money-bill-alt']" class="mr-2" />
                       Send {{ symbol }}
                     </b-dropdown-item>
@@ -96,6 +98,16 @@ export default class AddressList extends Vue {
 
   onAddClick(): void {
     this.$emit('onAddClicked');
+  }
+
+  onSendButtonClick(path: string): void {
+    this.$router.push({
+      name: 'Send',
+      params: {
+        ticker: this.symbol,
+        from: path,
+      },
+    });
   }
 }
 </script>

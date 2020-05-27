@@ -26,11 +26,11 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { AddressInfo } from '@/types';
+import { AddressInfo, WalletNetworkInfo } from '@/types';
 
 @Component
 export default class NewAddressModal extends Vue {
-  @Prop({ type: String, required: true }) network!: string;
+  @Prop({ type: Object, required: true }) network!: WalletNetworkInfo;
   alias = '';
   address = '';
   index = -1;

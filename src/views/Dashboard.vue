@@ -16,7 +16,7 @@
           </b-col>
           <b-col md="12" lg="6" class="mt-0 mt-3 mt-lg-0">
             <NetworkSelector
-              @onNetworkSelected="changeNetwork"
+              @onNetworkKindSelected="changeNetwork"
               :selectedNetwork="selectedNetwork"
             />
           </b-col>
@@ -37,8 +37,15 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { BigNumber } from 'bignumber.js';
-import { VaultState, AddressInfo } from '@/types';
-import { humanReadableFlakes } from '@/utils';
+import {
+  VaultState, AddressInfo, WalletNetworkInfo, WalletNetworkKind,
+} from '@/types';
+import {
+  humanReadableFlakes,
+  networkKindToTicker,
+  networkKindToSDKNetwork,
+  ADDRESS_MOCK_MAP,
+} from '@/utils';
 import { sdk } from '@/sdk';
 import { Menu } from '@/components/common';
 import {
@@ -59,25 +66,13 @@ import { namespace as persisted } from '@/store/persisted';
 })
 export default class Dashboard extends Vue {
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
-  @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: string;
+  @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
   loadingAddresses = true;
   addressRows: Array<AddressListRowInfo> = [];
   totalBalance = '0';
   api!: any;
-
-  get symbol(): string {
-    switch (this.network()) {
-      case sdk.Network.Testnet:
-        return 'THYD';
-      case sdk.Network.Devnet:
-        return 'DHYD';
-      case sdk.Network.Mainnet:
-        return 'HYD';
-      default:
-        return '?';
-    }
-  }
+  symbol = '';
 
   async beforeMount(): Promise<void> {
     if (!this.serializedVault) {
@@ -86,7 +81,8 @@ export default class Dashboard extends Vue {
   }
 
   async mounted(): Promise<void> {
-    this.api = await sdk.Layer1.createApi(this.network());
+    this.api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
+    this.symbol = networkKindToTicker(this.selectedNetwork.kind);
     this.refreshAddresses();
   }
 
@@ -94,38 +90,31 @@ export default class Dashboard extends Vue {
     this.$bvModal.show('add-address-modal');
   }
 
-  async changeNetwork(network: string): Promise<void> {
-    this.$store.dispatch(`${persisted}/setNetwork`, this.asSdkNetwork(network));
-    this.api = await sdk.Layer1.createApi(this.network());
+  async changeNetwork(network: WalletNetworkKind): Promise<void> {
+    this.$store.dispatch(`${persisted}/setNetwork`, {
+      kind: network,
+      ticker: networkKindToTicker(network),
+    } as WalletNetworkInfo);
+    this.api = await sdk.Layer1.createApi(networkKindToSDKNetwork(network));
+    this.symbol = networkKindToTicker(this.selectedNetwork.kind);
     await this.refreshAddresses();
   }
 
   async refreshAddresses(): Promise<void> {
     this.loadingAddresses = true;
 
-    const MOCK_MAP = [
-      'tYkupfpnXHR9xtvWowscsWhyxvJLafb8ik',
-      'tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J',
-      'tpV6L8Xz2kB5f2B9ASkXxiLT8VHyQ2mtdP',
-    ];
-
     let totalFlakes = new BigNumber(0);
     const addressRows: Array<AddressListRowInfo> = [];
 
     const promises: Array<Promise<any>> = [];
-
-    Object.keys(this.vaultState[this.selectedNetwork][0]).forEach((index: string) => {
-      promises.push(this.api.getWallet(MOCK_MAP[parseInt(index, 10)]));
+    Object.keys(this.vaultState[this.selectedNetwork.kind][0]).forEach((index: string) => {
+      promises.push(this.api.getWallet(ADDRESS_MOCK_MAP[parseInt(index, 10)]));
     });
 
     const wallets = await Promise.all(promises);
 
-    for (const [index, info] of Object.entries(this.vaultState[this.selectedNetwork][0])) {
-      if (info.network !== this.selectedNetwork) {
-        continue;
-      }
-
-      const address = MOCK_MAP[parseInt(index, 10)];
+    for (const [index, info] of Object.entries(this.vaultState[this.selectedNetwork.kind][0])) {
+      const address = ADDRESS_MOCK_MAP[parseInt(index, 10)];
       const wallet = wallets[parseInt(index, 10)];
       const balance = wallet.isPresent() ? wallet.get().balance : '0';
       const newAddressInfo = {
@@ -139,6 +128,8 @@ export default class Dashboard extends Vue {
         address,
         alias: info.alias,
         balance: humanReadableFlakes(new BigNumber(balance)),
+        accountIndex: 0,
+        addressIndex: parseInt(index, 10),
       });
     }
 
@@ -150,23 +141,6 @@ export default class Dashboard extends Vue {
   private async onNewAddressSaved(info: AddressInfo): Promise<void> {
     this.$store.dispatch(`${persisted}/addAddress`, info);
     await this.refreshAddresses();
-  }
-
-  private network(): any {
-    return this.selectedNetwork ? this.selectedNetwork : sdk.Network.Testnet;
-  }
-
-  private asSdkNetwork(network: string): any {
-    switch (network) {
-      case 'testnet':
-        return sdk.Network.Testnet;
-      case 'devnet':
-        return sdk.Network.Devnet;
-      case 'mainnet':
-        return sdk.Network.Mainnet;
-      default:
-        throw new Error(`Unknown network ${network}`);
-    }
   }
 }
 </script>

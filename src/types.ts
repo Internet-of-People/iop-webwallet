@@ -1,8 +1,19 @@
+export enum WalletNetworkKind {
+  HydraTestnet,
+  HydraDevnet,
+  HydraMainnet,
+}
+
+export interface WalletNetworkInfo {
+  ticker: string;
+  kind: WalletNetworkKind;
+}
+
 export interface AddressInfo {
   index: number;
   alias: string;
   balance: string;
-  network: string;
+  network: WalletNetworkInfo;
 }
 
 export interface AddressMap {

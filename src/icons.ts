@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Vue from 'vue';
 import {
   faArrowRight,
+  faArrowDown,
   faClipboardList,
   faEllipsisV,
   faEraser,
@@ -29,6 +30,7 @@ import {
 const setup = () => {
   library.add(
     faArrowRight, // <fa icon="arrow-right" />
+    faArrowDown, // <fa icon="arrow-down" />
     faCheckCircle, // <fa :icon="['far', 'check-circle']" />
     faClipboardList, // <fa icon="clipboard-list" />
     faEdit, // <fa :icon="['far', 'edit']" />

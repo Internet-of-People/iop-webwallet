@@ -3,15 +3,15 @@
     <b-card no-body bg-variant="light">
       <b-card-body>
         <b-row no-gutters>
-          <b-col cols="2"><fa class="card-icon-md mt-0" icon="wallet" /></b-col>
-          <b-col cols="7" class="pl-3">
+          <b-col cols="2"><fa class="card-icon mt-0" icon="wallet" /></b-col>
+          <b-col cols="8" class="pl-3">
             <b-card-title>Balance</b-card-title>
             <b-card-text>
               <h5 v-if="loading">Loading...</h5>
-              <h5 v-else>{{ balance }} {{ symbol }}</h5>
+              <p v-else class="mb-0">{{ balance }} {{ symbol }}</p>
             </b-card-text>
           </b-col>
-          <b-col cols="3" class="text-right">
+          <b-col cols="2" class="text-right">
             <b-button
               size="sm"
               pill

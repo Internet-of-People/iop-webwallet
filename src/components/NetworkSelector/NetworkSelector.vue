@@ -2,7 +2,7 @@
   <b-card no-body bg-variant="light">
     <b-card-body>
       <b-row no-gutters>
-        <b-col cols="2"><fa class="card-icon-md mt-0" icon="network-wired" /></b-col>
+        <b-col cols="2"><fa class="card-icon mt-0" icon="network-wired" /></b-col>
         <b-col cols="7" class="pl-3">
           <b-card-title>Network</b-card-title>
           <b-card-text>

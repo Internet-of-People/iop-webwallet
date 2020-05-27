@@ -1,16 +1,12 @@
 <template>
   <b-container fluid class="mt-4">
     <b-row>
-      <b-col cols="3">
-        <b-nav pills vertical>
-          <b-nav-item active>Dashboard</b-nav-item>
-          <b-nav-item disabled>Send HYD (soon)</b-nav-item>
-          <b-nav-item disabled>Message (soon)</b-nav-item>
-        </b-nav>
+      <b-col md="3">
+        <Menu />
       </b-col>
-      <b-col cols="9">
+      <b-col md="9">
         <b-row>
-          <b-col>
+          <b-col md="12" lg="6">
             <TotalBalance
               :loading="loadingAddresses"
               :balance="totalBalance"
@@ -18,7 +14,7 @@
               @onRefreshClicked="refreshAddresses"
             />
           </b-col>
-          <b-col>
+          <b-col md="12" lg="6" class="mt-0 mt-3 mt-lg-0">
             <NetworkSelector
               @onNetworkSelected="changeNetwork"
               :selectedNetwork="selectedNetwork"
@@ -44,6 +40,7 @@ import { BigNumber } from 'bignumber.js';
 import { VaultState, AddressInfo } from '@/types';
 import { humanReadableFlakes } from '@/utils';
 import { sdk } from '@/sdk';
+import { Menu } from '@/components/common';
 import {
   AddressList, NetworkSelector, NewAddressModal, TotalBalance,
 } from '@/components';
@@ -54,12 +51,13 @@ import { namespace as persisted } from '@/store/persisted';
 @Component({
   components: {
     AddressList,
+    Menu,
     NetworkSelector,
     NewAddressModal,
     TotalBalance,
   },
 })
-export default class UseWallet extends Vue {
+export default class Dashboard extends Vue {
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: string;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;

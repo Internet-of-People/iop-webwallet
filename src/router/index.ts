@@ -3,8 +3,9 @@ import VueRouter, { RouteConfig } from 'vue-router';
 import {
   AccessWallet,
   CreateWallet,
+  Dashboard,
   Home,
-  UseWallet,
+  Send,
 } from '../views';
 
 Vue.use(VueRouter);
@@ -26,9 +27,14 @@ const routes: Array<RouteConfig> = [
     component: AccessWallet,
   },
   {
-    path: '/use',
-    name: 'UseWallet',
-    component: UseWallet,
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard,
+  },
+  {
+    path: '/send',
+    name: 'Send',
+    component: Send,
   },
 ];
 

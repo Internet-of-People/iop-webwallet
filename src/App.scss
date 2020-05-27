@@ -16,16 +16,6 @@
   text-align: center;
 }
 
-.text-gradient {
-  background: red;
-  background: -webkit-linear-gradient(left, orange , yellow, green, cyan, blue, violet);
-  background: -o-linear-gradient(right, orange, yellow, green, cyan, blue, violet);
-  background: -moz-linear-gradient(right, orange, yellow, green, cyan, blue, violet);
-  background: linear-gradient(to right, orange , yellow, green, cyan, blue, violet);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 .card-icon {
   font-size: 8rem;
   margin: auto;
@@ -41,13 +31,21 @@
   }
 }
 
-.card-icon-md {
+.card-icon {
   font-size: 8rem;
   margin: auto;
   display: block;
   margin-bottom: 24px;
 
-  @media (max-width: 768px) {
+  /*@media (max-width: 768px) {
+    font-size: 2rem;
+  }*/
+
+  @media (min-width: 1px) {
+    font-size: 2rem;
+  }
+
+  @media (min-width: 576px) {
     font-size: 2rem;
   }
 
@@ -55,4 +53,3 @@
     font-size: 3rem;
   }
 }
-

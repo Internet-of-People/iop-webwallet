@@ -4,6 +4,8 @@ import Vue from 'vue';
 import {
   faArrowRight,
   faClipboardList,
+  faEllipsisV,
+  faEraser,
   faGlassCheers,
   faNetworkWired,
   faPlus,
@@ -18,7 +20,10 @@ import {
 import {
   faSave,
   faCheckCircle,
+  faEdit,
+  faEye,
   faFileCode,
+  faMoneyBillAlt,
 } from '@fortawesome/free-regular-svg-icons';
 
 const setup = () => {
@@ -26,9 +31,14 @@ const setup = () => {
     faArrowRight, // <fa icon="arrow-right" />
     faCheckCircle, // <fa :icon="['far', 'check-circle']" />
     faClipboardList, // <fa icon="clipboard-list" />
+    faEdit, // <fa :icon="['far', 'edit']" />
+    faEllipsisV, // <fa icon="ellipsis-v" />
+    faEraser, // <fa icon="eraser" />
+    faEye, // <fa :icon="['far', 'eye']" />
     faGlassCheers, // <fa icon="glass-cheers" />
-    faNetworkWired, // <fa icon="network-wired" />
     faFileCode, // <fa :icon="['far', 'file-code']" />
+    faMoneyBillAlt, // <fa :icon="['far', 'money-bill-alt']" />
+    faNetworkWired, // <fa icon="network-wired" />
     faPlus, // <fa icon="plus" />
     faRandom, // <fa icon="random" />
     faSave, // <fa :icon="['far', 'save']" />

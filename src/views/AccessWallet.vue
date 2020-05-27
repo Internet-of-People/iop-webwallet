@@ -58,7 +58,7 @@ export default class AccessWallet extends Vue {
       reader.readAsText(element.files[0], 'UTF-8');
       reader.onload = (): any => {
         this.$store.dispatch(`${namespace}/setSerializedVault`, reader.result);
-        this.$router.push({ name: 'UseWallet' });
+        this.$router.push({ name: 'Dashboard' });
       };
       reader.onerror = (evt: any) => {
         console.error(evt);

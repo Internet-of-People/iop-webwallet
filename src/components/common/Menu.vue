@@ -6,7 +6,7 @@
     <b-nav-item :active="isActive('Send')" @click="onSendClick">
       Send
     </b-nav-item>
-    <b-nav-item disabled>Message (soon)</b-nav-item>
+    <b-nav-item disabled>Message / Verify (soon)</b-nav-item>
   </b-nav>
 </template>
 <script lang="ts">

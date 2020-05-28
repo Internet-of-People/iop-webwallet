@@ -64,13 +64,13 @@
     </b-row>
     <b-modal
       id="confirm-modal"
-      title="Confirm Transfer"
       no-close-on-esc
       hide-header-close
       no-close-on-backdrop
+      hide-header
       hide-footer
     >
-      <b-list-group>
+      <b-list-group v-if="!sendingTx">
         <b-list-group-item class="flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1" v-if="senderAddressInfo">{{ senderAddressInfo.alias }}</h5>
@@ -97,11 +97,46 @@
           </div>
         </b-list-group-item>
       </b-list-group>
-      <b-row no-gutters>
+      <b-row no-gutters v-if="!sendingTx">
         <b-col class="text-center my-4">
           <b-button variant="outline-primary mr-3">BACK</b-button>
-          <b-button variant="primary">
+          <b-button variant="primary" @click="onConfirmSendClick">
             SEND {{ amount }} {{ selectedNetwork.ticker }}
+          </b-button>
+        </b-col>
+      </b-row>
+      <b-row no-gutters class="mt-3 text-center" v-if="sendingTx">
+        <b-col>
+          <h4>Broadcasting Your Transaction</h4>
+          <b-spinner variant="primary" class="mb-3 mt-2" />
+          <b-progress :value="sendingSince" max="12" class="mb-3" animated></b-progress>
+        </b-col>
+      </b-row>
+    </b-modal>
+    <b-modal
+      id="success-modal"
+      no-close-on-esc
+      hide-header-close
+      no-close-on-backdrop
+      hide-header
+      hide-footer
+    >
+      <h4 class="text-center mt-4">Success!</h4>
+      <fa class="success-icon mx-auto d-block my-4" icon="glass-cheers" />
+      <p class="text-center">
+        <strong>{{ amount }} {{ selectedNetwork.ticker }}</strong>
+        has been sent to {{ recipient }}
+      </p>
+
+      <b-row class="mt-4">
+        <b-col sm="12" md="6" class="text-center mb-3 mb-md-0">
+          <b-button variant="outline-success" block @click="onBackToDasboardClick">
+            BACK TO DASHBOARD
+          </b-button>
+        </b-col>
+        <b-col sm="12" md="6" class="text-center">
+          <b-button variant="outline-success" block>
+            OPEN EXPLORER
           </b-button>
         </b-col>
       </b-row>
@@ -140,6 +175,8 @@ export default class Send extends Vue {
   availableAmount: string | null = null;
   amount: number | null = null;
   recipient: string | null = null;
+  sendingTx = false;
+  sendingSince = 0;
 
   get availableSenders(): Array<SenderChoice> {
     const senders: Array<SenderChoice> = [];
@@ -197,11 +234,27 @@ export default class Send extends Vue {
     }
   }
 
-  onSendClicked(): void {
+  private onConfirmSendClick(): void {
+    this.sendingTx = true;
+    const interval = setInterval(() => {
+      this.sendingSince += 1;
+      if (this.sendingSince >= 12) {
+        clearInterval(interval);
+        this.onTxSuccess();
+      }
+    }, 1000);
+  }
+
+  private onTxSuccess(): void {
+    this.$bvModal.hide('confirm-modal');
+    this.$bvModal.show('success-modal');
+  }
+
+  private onSendClicked(): void {
     this.$bvModal.show('confirm-modal');
   }
 
-  onSenderChanged(): void {
+  private onSenderChanged(): void {
     if (this.senderIndex === null) {
       this.availableAmount = null;
       return;
@@ -214,6 +267,10 @@ export default class Send extends Vue {
     );
     this.senderAddressInfo = info;
     this.senderAddress = ADDRESS_MOCK_MAP[info.index];
+  }
+
+  private onBackToDasboardClick(): void {
+    this.$router.push({ name: 'Dashboard' });
   }
 }
 </script>

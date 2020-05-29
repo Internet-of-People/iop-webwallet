@@ -10,6 +10,7 @@ export const namespace = 'inmemory';
 
 export const state: InMemoryState = {
   serializedVault: null,
+  unlockPassword: null,
 };
 
 export const inmemory: Module<InMemoryState, WalletRootState> = {

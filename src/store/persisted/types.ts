@@ -1,6 +1,7 @@
-import { VaultState } from '@/types';
+import { VaultState, WalletNetworkInfo } from '@/types';
 
 export interface PersistedState {
-  selectedNetwork: any;
+  selectedNetwork: WalletNetworkInfo | null;
+  selectedWalletHash: string | null;
   vaultState: VaultState;
 }

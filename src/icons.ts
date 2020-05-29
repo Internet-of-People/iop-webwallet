@@ -8,6 +8,7 @@ import {
   faEllipsisV,
   faEraser,
   faGlassCheers,
+  faKey,
   faNetworkWired,
   faPlus,
   faRandom,
@@ -39,6 +40,7 @@ const setup = () => {
     faEye, // <fa :icon="['far', 'eye']" />
     faGlassCheers, // <fa icon="glass-cheers" />
     faFileCode, // <fa :icon="['far', 'file-code']" />
+    faKey, // <fa icon="key" />
     faMoneyBillAlt, // <fa :icon="['far', 'money-bill-alt']" />
     faNetworkWired, // <fa icon="network-wired" />
     faPlus, // <fa icon="plus" />

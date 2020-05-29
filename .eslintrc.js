@@ -26,5 +26,6 @@ module.exports = {
     'no-continue': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     'no-unused-expressions': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
   },
 };

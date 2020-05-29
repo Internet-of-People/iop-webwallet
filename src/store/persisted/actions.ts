@@ -7,6 +7,9 @@ const actions: ActionTree<PersistedState, WalletRootState> = {
   setNetwork({ commit }, value: WalletNetworkInfo): void {
     commit('SET_NETWORK', value);
   },
+  setSelectedWalletHash({ commit }, value: string): void {
+    commit('SET_SELECTED_WALLET_HASH', value);
+  },
   addAddress({ commit }, addressInfo: AddressInfo): void {
     commit('ADD_ADDRESS', addressInfo);
   },

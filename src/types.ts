@@ -10,6 +10,7 @@ export interface WalletNetworkInfo {
 }
 
 export interface AddressInfo {
+  accountIndex: number;
   index: number;
   alias: string;
   balance: string;
@@ -28,4 +29,8 @@ export interface NetworkMap {
   [key: string]: AccountMap;
 }
 
-export type VaultState = NetworkMap;
+export interface WalletMap {
+  [key: string]: NetworkMap;
+}
+
+export type VaultState = WalletMap;

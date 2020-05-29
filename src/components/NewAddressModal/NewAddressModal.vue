@@ -26,14 +26,11 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { AddressInfo, WalletNetworkInfo } from '@/types';
 
 @Component
 export default class NewAddressModal extends Vue {
-  @Prop({ type: Object, required: true }) network!: WalletNetworkInfo;
+  @Prop({ type: String, required: true }) address!: string;
   alias = '';
-  address = '';
-  index = -1;
 
   get aliasState(): boolean | null {
     if (this.alias === '') {
@@ -47,19 +44,8 @@ export default class NewAddressModal extends Vue {
     return 'The alias\'s length must be at least 3 and less then 20';
   }
 
-  beforeMount(): void {
-    // TODO find the latest index in the state, and get the next one
-    this.address = 'tjseecxRmob5qBS2T3qc8frXDKz3YUGB8J'; // TODO
-    this.index = 1;
-  }
-
-  onSave(): void {
-    this.$emit('onSave', {
-      index: this.index,
-      alias: this.alias,
-      balance: '0',
-      network: this.network,
-    } as AddressInfo);
+  private onSave(): void {
+    this.$emit('onSave', this.alias);
     this.$bvModal.hide('add-address-modal');
     this.alias = '';
   }

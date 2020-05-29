@@ -4,7 +4,8 @@ import { WalletRootState } from '../types';
 import { PersistedState } from './types';
 
 const getters: GetterTree<PersistedState, WalletRootState> = {
-  selectedNetwork: (state): WalletNetworkInfo => state.selectedNetwork,
+  selectedNetwork: (state): WalletNetworkInfo => state.selectedNetwork!,
+  selectedWalletHash: (state): string | null => state.selectedWalletHash,
   vaultState: (state): VaultState => state.vaultState,
 };
 

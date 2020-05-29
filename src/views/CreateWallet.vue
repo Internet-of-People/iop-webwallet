@@ -43,8 +43,8 @@
                 </b-row>
               </b-card-text>
             </b-card>
-            <b-button @click="generateWallet" size="lg" variant="primary" class="mx-auto d-block">
-              Generate Unique Wallet
+            <b-button @click="askForPassword" size="lg" variant="primary" class="mx-auto d-block">
+              Continue
             </b-button>
           </b-card-body>
         </b-card>
@@ -201,6 +201,39 @@
         Access My Wallet
       </b-button>
     </b-modal>
+
+    <b-modal id="password-modal" hide-header hide-footer>
+      <fa class="success-icon mx-auto d-block my-4" icon="key" />
+      <h4 class="text-center">Protect Wallet</h4>
+
+      <b-form-group
+        id="password"
+        label="Your Password"
+        label-for="password"
+      >
+        <b-form-input id="password" v-model="password" :state="passwordState" trim></b-form-input>
+        <b-form-invalid-feedback :state="passwordState">
+          Please enter at least 9 characters.
+        </b-form-invalid-feedback>
+      </b-form-group>
+
+      <b-alert show variant="warning">
+        <span class="text-danger"><strong>DO NOT FORGET</strong></span> to save your password.<br>
+        You will need this
+        <span class="text-danger"><strong>Password + Keystore File</strong></span>
+        to unlock your wallet.
+      </b-alert>
+
+      <b-button
+        size="lg"
+        variant="primary"
+        class="mx-auto my-4 d-block"
+        :disabled="passwordState !== true"
+        @click="generateWallet"
+      >
+        Generate Unique Wallet
+      </b-button>
+    </b-modal>
   </b-container>
 </template>
 <script lang="ts">
@@ -209,13 +242,23 @@ import { sdk } from '@/sdk';
 
 @Component
 export default class CreateWallet extends Vue {
+  password = '';
+
   mounted(): void {
     if (!localStorage.getItem('completed_tutorial')) {
       this.$bvModal.show('educate-modal1');
     }
   }
 
-  advanceEducateFlowTo(to: number): void {
+  get passwordState(): boolean | null {
+    if (this.password === '') {
+      return null;
+    }
+
+    return this.password.length >= 9;
+  }
+
+  private advanceEducateFlowTo(to: number): void {
     this.$bvModal.hide('educate-modal1');
     this.$bvModal.hide('educate-modal2');
     this.$bvModal.hide('educate-modal3');
@@ -228,17 +271,26 @@ export default class CreateWallet extends Vue {
     }
   }
 
-  generateWallet(): void {
-    const phrase = new sdk.Crypto.Bip39('en').generatePhrase();
-    const vault = new sdk.Crypto.Vault(phrase);
-    const fileName = `hyd-wallet-UTC-${new Date().toISOString().replace(/:/g, '_')}.json`;
-    const blob = new Blob([vault.serialize()], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(link.href);
-    this.$bvModal.show('success-modal');
+  private askForPassword(): void {
+    this.$bvModal.show('password-modal');
+  }
+
+  private async generateWallet(): Promise<void> {
+    const { phrase } = new sdk.Crypto.Bip39('en').generate();
+    const vault = await sdk.Crypto.XVault.create(phrase, '', {
+      save: async (state: any): Promise<void> => {
+        const fileName = `hyd-wallet-UTC-${new Date().toISOString().replace(/:/g, '_')}.json`;
+        const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        this.$bvModal.show('success-modal');
+      },
+      askUnlockPassword: async (forDecrypt: boolean): Promise<string> => this.password,
+    });
+    await vault.save();
   }
 }
 </script>

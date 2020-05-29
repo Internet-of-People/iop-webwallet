@@ -30,7 +30,7 @@
         />
       </b-col>
     </b-row>
-    <NewAddressModal @onSave="onNewAddressSaved" :network="selectedNetwork" />
+    <NewAddressModal @onSave="onNewAddressSaved" :address="nextAddress" />
   </b-container>
 </template>
 <script lang="ts">
@@ -42,9 +42,10 @@ import {
 } from '@/types';
 import {
   humanReadableFlakes,
+  networkKindToCoin,
   networkKindToTicker,
   networkKindToSDKNetwork,
-  ADDRESS_MOCK_MAP,
+  rewindNetworkToState,
 } from '@/utils';
 import { sdk } from '@/sdk';
 import { Menu } from '@/components/common';
@@ -66,6 +67,8 @@ import { namespace as persisted } from '@/store/persisted';
 })
 export default class Dashboard extends Vue {
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
+  @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
+  @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
   loadingAddresses = true;
@@ -73,24 +76,48 @@ export default class Dashboard extends Vue {
   totalBalance = '0';
   api!: any;
   symbol = '';
-
-  async beforeMount(): Promise<void> {
-    if (!this.serializedVault) {
-      this.$router.push({ name: 'Home' });
-    }
-  }
+  vault: any;
+  nextAddress = '';
+  nextAddressIndex!: number;
 
   async mounted(): Promise<void> {
+    if (!this.serializedVault) {
+      this.$router.push({ name: 'Home' });
+      return;
+    }
     this.api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
     this.symbol = networkKindToTicker(this.selectedNetwork.kind);
-    this.refreshAddresses();
+
+    this.vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
+      askUnlockPassword: async (forDecrypt: boolean): Promise<string> => this.unlockPassword,
+    });
+    await this.buildData();
+    this.loadingAddresses = false;
   }
 
-  onAddClicked(): void {
+  private async onAddClicked(): Promise<void> {
+    const account = await this.getAccount();
+    const walletState = this.vaultState[this.selectedWalletHash];
+    const indices = Object.keys(
+      walletState[this.selectedNetwork.kind][0],
+    ).map((index) => parseInt(index, 10));
+
+    const maxIndex = indices.length === 0 ? -1 : Math.max(...indices);
+    const nextIndex = maxIndex + 1;
+
+    for (let i = 0; i < nextIndex + 1; i += 1) {
+      if (!account.pub.keys[i]) {
+        /* eslint-disable no-await-in-loop */
+        await account.pub.createKey();
+      }
+    }
+
+    this.nextAddress = account.pub.keys[nextIndex].address;
+    this.nextAddressIndex = nextIndex;
     this.$bvModal.show('add-address-modal');
   }
 
-  async changeNetwork(network: WalletNetworkKind): Promise<void> {
+  private async changeNetwork(network: WalletNetworkKind): Promise<void> {
     this.$store.dispatch(`${persisted}/setNetwork`, {
       kind: network,
       ticker: networkKindToTicker(network),
@@ -100,47 +127,68 @@ export default class Dashboard extends Vue {
     await this.refreshAddresses();
   }
 
-  async refreshAddresses(): Promise<void> {
+  private async refreshAddresses(): Promise<void> {
     this.loadingAddresses = true;
 
-    let totalFlakes = new BigNumber(0);
-    const addressRows: Array<AddressListRowInfo> = [];
+    await rewindNetworkToState(
+      this.selectedNetwork.kind,
+      this.serializedVault,
+      this.$store,
+      async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
+    );
 
-    const promises: Array<Promise<any>> = [];
-    Object.keys(this.vaultState[this.selectedNetwork.kind][0]).forEach((index: string) => {
-      promises.push(this.api.getWallet(ADDRESS_MOCK_MAP[parseInt(index, 10)]));
-    });
-
-    const wallets = await Promise.all(promises);
-
-    for (const [index, info] of Object.entries(this.vaultState[this.selectedNetwork.kind][0])) {
-      const address = ADDRESS_MOCK_MAP[parseInt(index, 10)];
-      const wallet = wallets[parseInt(index, 10)];
-      const balance = wallet.isPresent() ? wallet.get().balance : '0';
-      const newAddressInfo = {
-        ...info,
-        balance,
-      };
-
-      this.$store.dispatch(`${persisted}/addAddress`, newAddressInfo);
-      totalFlakes = totalFlakes.plus(balance);
-      addressRows.push({
-        address,
-        alias: info.alias,
-        balance: humanReadableFlakes(new BigNumber(balance)),
-        accountIndex: 0,
-        addressIndex: parseInt(index, 10),
-      });
-    }
-
-    this.totalBalance = humanReadableFlakes(totalFlakes);
-    this.addressRows = addressRows;
+    await this.buildData();
     this.loadingAddresses = false;
   }
 
-  private async onNewAddressSaved(info: AddressInfo): Promise<void> {
-    this.$store.dispatch(`${persisted}/addAddress`, info);
+  private async buildData(): Promise<void> {
+    const account = await this.getAccount();
+    // TODO: we can remove it soon
+    const walletState = this.vaultState[this.selectedWalletHash];
+    const maxIndex = Math.max(
+      ...Object.keys(walletState[this.selectedNetwork.kind][0]).map((index) => parseInt(index, 10)),
+    );
+    for (let i = 0; i < maxIndex + 1; i += 1) {
+      if (!account.pub.keys[i]) {
+        /* eslint-disable no-await-in-loop */
+        await account.pub.createKey();
+      }
+    }
+    let totalFlakes = new BigNumber(0);
+    const addressRows: Array<AddressListRowInfo> = [];
+    for (const [index, info] of Object.entries(walletState[this.selectedNetwork.kind][0])) {
+      const { address } = account.pub.keys[parseInt(index, 10)];
+
+      addressRows.push({
+        address,
+        alias: info.alias,
+        balance: humanReadableFlakes(new BigNumber(info.balance)),
+        accountIndex: 0,
+        addressIndex: parseInt(index, 10),
+      });
+      totalFlakes = totalFlakes.plus(info.balance);
+    }
+
+    this.addressRows = addressRows;
+    this.totalBalance = humanReadableFlakes(totalFlakes);
+  }
+
+  private async onNewAddressSaved(alias: string): Promise<void> {
+    this.$store.dispatch(`${persisted}/addAddress`, {
+      index: this.nextAddressIndex,
+      accountIndex: 0, // TODO: we only handle the 1st accout now
+      alias,
+      balance: '0',
+      network: this.selectedNetwork,
+    } as AddressInfo);
     await this.refreshAddresses();
+  }
+
+  private async getAccount(): Promise<any> {
+    return sdk.Crypto.hydra(
+      this.vault,
+      { network: networkKindToCoin(this.selectedNetwork.kind), account: 0 },
+    );
   }
 }
 </script>

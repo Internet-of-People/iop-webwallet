@@ -89,11 +89,11 @@ export default class AccessWallet extends Vue {
     const walletHash = createHash('sha256').update(JSON.parse(this.serializedVault).encryptedSeed).digest('hex');
     this.$store.dispatch(`${inmemory}/setUnlockPassword`, password);
     this.$store.dispatch(`${inmemory}/setSerializedVault`, this.serializedVault);
+    this.$store.dispatch(`${persisted}/setSelectedWalletHash`, walletHash);
     this.$store.dispatch(`${persisted}/setNetwork`, {
       kind: WalletNetworkKind.HydraTestnet,
       ticker: networkKindToTicker(WalletNetworkKind.HydraTestnet),
     });
-    this.$store.dispatch(`${persisted}/setSelectedWalletHash`, walletHash);
 
     this.$bvModal.hide('ask-for-password-modal');
     this.loading = true;

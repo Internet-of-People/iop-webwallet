@@ -78,7 +78,9 @@ import { Getter } from 'vuex-class';
 import { BigNumber } from 'bignumber.js';
 import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
 import { sdk } from '@/sdk';
-import { humanReadableFlakes, networkKindToCoin } from '@/utils';
+import {
+  humanReadableFlakes, networkKindToCoin, USED_HYDRA_ACCOUNT, hydraAccount,
+} from '@/utils';
 import { ConfirmTXModal } from '@/components';
 import { Menu } from '@/components/common';
 import { namespace as inMemory } from '@/store/inmemory';
@@ -134,26 +136,12 @@ export default class Send extends Vue {
   }
 
   async mounted(): Promise<void> {
-    // TODO: this can soon be removed as we can access keys by index
     const vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
       askUnlockPassword: async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
     });
-    this.account = await sdk.Crypto.hydra(
-      vault,
-      { network: networkKindToCoin(this.selectedNetwork.kind), account: 0 },
-    );
-    const walletState = this.vaultState[this.selectedWalletHash];
-    const maxIndex = Math.max(
-      ...Object.keys(walletState[this.selectedNetwork.kind][0]).map((index) => parseInt(index, 10)),
-    );
-    for (let i = 0; i < maxIndex + 1; i += 1) {
-      if (!this.account.pub.keys[i]) {
-        /* eslint-disable no-await-in-loop */
-        await this.account.pub.createKey();
-      }
-    }
+    this.account = await hydraAccount(vault, this.selectedNetwork.kind);
 
-    this.initAvailableSenders();
+    await this.initAvailableSenders();
 
     if (this.from) {
       const path = this.from.split('.');
@@ -161,12 +149,12 @@ export default class Send extends Vue {
         return;
       }
       const accountIndex = parseInt(path[0], 10);
-      const addressIndex = parseInt(path[1], 10);
+      this.senderIndex = parseInt(path[1], 10);
+      const walletState = this.vaultState[this.selectedWalletHash];
       const entries = Object.entries(walletState[this.selectedNetwork.kind][accountIndex]);
 
       for (const [index, info] of entries) {
-        if (parseInt(index, 10) === addressIndex) {
-          this.senderIndex = info.index;
+        if (parseInt(index, 10) === this.senderIndex) {
           this.senderAddressInfo = info;
           this.onSenderChanged();
         }
@@ -177,9 +165,10 @@ export default class Send extends Vue {
   private async initAvailableSenders(): Promise<void> {
     const walletState = this.vaultState[this.selectedWalletHash];
     const senders: Array<SenderChoice> = [];
+    const addresses = Object.entries(walletState[this.selectedNetwork.kind][USED_HYDRA_ACCOUNT]);
 
-    for (const [index, info] of Object.entries(walletState[this.selectedNetwork.kind][0])) {
-      const { address } = this.account.pub.keys[parseInt(index, 10)];
+    for (const [index, info] of addresses) {
+      const { address } = this.account.pub.getKey(parseInt(index, 10));
       const balance = `${humanReadableFlakes(new BigNumber(info.balance))}`;
       senders.push({
         value: index,
@@ -201,7 +190,7 @@ export default class Send extends Vue {
     }
 
     const walletState = this.vaultState[this.selectedWalletHash];
-    const info = walletState[this.selectedNetwork.kind][0][this.senderIndex!];
+    const info = walletState[this.selectedNetwork.kind][USED_HYDRA_ACCOUNT][this.senderIndex!];
 
     this.availableAmount = humanReadableFlakes(
       new BigNumber(info.balance),

@@ -6,6 +6,8 @@ import { WalletRootState } from '@/store/types';
 import { namespace as persisted } from '@/store/persisted';
 import { PersistedState } from '@/store/persisted/types';
 
+export const USED_HYDRA_ACCOUNT = 0; // TODO: we only handle the 1st accout now
+
 export const humanReadableFlakes = (flakes: BigNumber): string => flakes.dividedBy(1e8).toFormat(4);
 
 export const networkKindToCoin = (networkKind: WalletNetworkKind): any => {
@@ -34,10 +36,9 @@ export const networkKindToSDKNetwork = (networkKind: WalletNetworkKind): any => 
   }
 };
 
-export const networkKindToNetworkURL = (networkKind: WalletNetworkKind): string => {
-  const sdkNetwork = networkKindToSDKNetwork(networkKind);
-  return sdk.schemaAndHost(sdkNetwork);
-};
+export const networkKindToNetworkURL = (
+  networkKind: WalletNetworkKind,
+): string => sdk.schemaAndHost(networkKindToSDKNetwork(networkKind));
 
 export const networkKindToTicker = (networkKind: WalletNetworkKind): string => {
   switch (networkKind) {
@@ -55,6 +56,17 @@ export const networkKindToTicker = (networkKind: WalletNetworkKind): string => {
 export const networkKindToNetworkInfo = (
   networkKind: WalletNetworkKind,
 ): WalletNetworkInfo => ({ kind: networkKind, ticker: networkKindToTicker(networkKind) });
+
+export const hydraAccount = (
+  vault: any,
+  networkKind: WalletNetworkKind,
+): Promise<any> => sdk.Crypto.hydra(
+  vault,
+  {
+    network: networkKindToCoin(networkKind),
+    account: USED_HYDRA_ACCOUNT,
+  },
+);
 
 type UnlockPasswordCallback = (forDecrypt: boolean) => Promise<string>;
 const REWIND_GAP = 5;

@@ -118,7 +118,12 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { BigNumber } from 'bignumber.js';
 import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
-import { networkKindToSDKNetwork, networkKindToCoin, networkKindToNetworkURL } from '@/utils';
+import {
+  networkKindToSDKNetwork,
+  networkKindToCoin,
+  networkKindToNetworkURL,
+  hydraAccount,
+} from '@/utils';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { sdk } from '@/sdk';
@@ -144,25 +149,10 @@ export default class Send extends Vue {
   private async onConfirmSendClick(): Promise<void> {
     this.sendingTx = true;
 
-    // TODO: this can soon be removed as we can access keys by index
     const vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
       askUnlockPassword: async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
     });
-    const account = await sdk.Crypto.hydra(
-      vault,
-      { network: networkKindToCoin(this.selectedNetwork.kind), account: 0 },
-    );
-    const walletState = this.vaultState[this.selectedWalletHash];
-    const maxIndex = Math.max(
-      ...Object.keys(walletState[this.selectedNetwork.kind][0]).map((index) => parseInt(index, 10)),
-    );
-    for (let i = 0; i < this.senderIndex! + 1; i += 1) {
-      if (!account.pub.keys[i]) {
-        /* eslint-disable no-await-in-loop */
-        await account.pub.createKey();
-      }
-    }
-
+    const account = await hydraAccount(vault, this.selectedNetwork.kind);
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
     const { wif } = (await account.priv()).getKey(this.senderIndex!);
     const amount = sdk.Ark.Utils.BigNumber.make(this.amount! * 1e8);

@@ -26,7 +26,7 @@
           :symbol="symbol"
           :rows="addressRows"
           @onRefreshClicked="refreshAddresses"
-          @onAddClicked="onAddClicked"
+          @onAddClicked="onAddAddressClicked"
         />
       </b-col>
     </b-row>
@@ -42,16 +42,19 @@ import {
 } from '@/types';
 import {
   humanReadableFlakes,
+  hydraAccount,
   networkKindToCoin,
   networkKindToTicker,
   networkKindToSDKNetwork,
   rewindNetworkToState,
+  USED_HYDRA_ACCOUNT,
 } from '@/utils';
 import { sdk } from '@/sdk';
 import { Menu } from '@/components/common';
 import {
   AddressList, NetworkSelector, NewAddressModal, TotalBalance,
 } from '@/components';
+
 import { AddressListRowInfo } from '@/components/AddressList';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
@@ -85,18 +88,20 @@ export default class Dashboard extends Vue {
       this.$router.push({ name: 'Home' });
       return;
     }
+
     this.api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
     this.symbol = networkKindToTicker(this.selectedNetwork.kind);
 
     this.vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
       askUnlockPassword: async (forDecrypt: boolean): Promise<string> => this.unlockPassword,
     });
+
     await this.buildData();
     this.loadingAddresses = false;
   }
 
-  private async onAddClicked(): Promise<void> {
-    const account = await this.getAccount();
+  private async onAddAddressClicked(): Promise<void> {
+    const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
     const walletState = this.vaultState[this.selectedWalletHash];
     const indices = Object.keys(
       walletState[this.selectedNetwork.kind][0],
@@ -105,14 +110,8 @@ export default class Dashboard extends Vue {
     const maxIndex = indices.length === 0 ? -1 : Math.max(...indices);
     const nextIndex = maxIndex + 1;
 
-    for (let i = 0; i < nextIndex + 1; i += 1) {
-      if (!account.pub.keys[i]) {
-        /* eslint-disable no-await-in-loop */
-        await account.pub.createKey();
-      }
-    }
-
-    this.nextAddress = account.pub.keys[nextIndex].address;
+    account.pub.setCount(1000);// TODO: remove this
+    this.nextAddress = account.pub.getKey(nextIndex).address;
     this.nextAddressIndex = nextIndex;
     this.$bvModal.show('add-address-modal');
   }
@@ -142,22 +141,14 @@ export default class Dashboard extends Vue {
   }
 
   private async buildData(): Promise<void> {
-    const account = await this.getAccount();
-    // TODO: we can remove it soon
+    const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
+    account.pub.setCount(1000);// TODO: remove this
     const walletState = this.vaultState[this.selectedWalletHash];
-    const maxIndex = Math.max(
-      ...Object.keys(walletState[this.selectedNetwork.kind][0]).map((index) => parseInt(index, 10)),
-    );
-    for (let i = 0; i < maxIndex + 1; i += 1) {
-      if (!account.pub.keys[i]) {
-        /* eslint-disable no-await-in-loop */
-        await account.pub.createKey();
-      }
-    }
+
     let totalFlakes = new BigNumber(0);
     const addressRows: Array<AddressListRowInfo> = [];
     for (const [index, info] of Object.entries(walletState[this.selectedNetwork.kind][0])) {
-      const { address } = account.pub.keys[parseInt(index, 10)];
+      const { address } = account.pub.getKey(parseInt(index, 10));
 
       addressRows.push({
         address,
@@ -176,19 +167,12 @@ export default class Dashboard extends Vue {
   private async onNewAddressSaved(alias: string): Promise<void> {
     this.$store.dispatch(`${persisted}/addAddress`, {
       index: this.nextAddressIndex,
-      accountIndex: 0, // TODO: we only handle the 1st accout now
+      accountIndex: USED_HYDRA_ACCOUNT,
       alias,
       balance: '0',
       network: this.selectedNetwork,
     } as AddressInfo);
     await this.refreshAddresses();
-  }
-
-  private async getAccount(): Promise<any> {
-    return sdk.Crypto.hydra(
-      this.vault,
-      { network: networkKindToCoin(this.selectedNetwork.kind), account: 0 },
-    );
   }
 }
 </script>

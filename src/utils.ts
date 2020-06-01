@@ -34,6 +34,11 @@ export const networkKindToSDKNetwork = (networkKind: WalletNetworkKind): any => 
   }
 };
 
+export const networkKindToNetworkURL = (networkKind: WalletNetworkKind): string => {
+  const sdkNetwork = networkKindToSDKNetwork(networkKind);
+  return sdk.schemaAndHost(sdkNetwork);
+};
+
 export const networkKindToTicker = (networkKind: WalletNetworkKind): string => {
   switch (networkKind) {
     case WalletNetworkKind.HydraTestnet:

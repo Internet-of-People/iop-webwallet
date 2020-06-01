@@ -62,85 +62,14 @@
         </div>
       </b-col>
     </b-row>
-    <b-modal
-      id="confirm-modal"
-      no-close-on-esc
-      hide-header-close
-      no-close-on-backdrop
-      hide-header
-      hide-footer
-    >
-      <b-list-group v-if="!sendingTx">
-        <b-list-group-item class="flex-column align-items-start">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1" v-if="senderAddressInfo">{{ senderAddressInfo.alias }}</h5>
-            <small class="text-muted">
-              Available: {{ availableAmount }}{{ selectedNetwork.ticker }}
-            </small>
-          </div>
-          <small class="text-muted">{{ senderAddress }}</small>
-        </b-list-group-item>
-
-        <b-list-group-item class="flex-column align-items-start">
-          <div class="text-center">
-            <h3 class="my-4">
-              <fa icon="arrow-down" />
-              {{ amount }} {{ selectedNetwork.ticker }}
-              <fa icon="arrow-down" />
-            </h3>
-          </div>
-        </b-list-group-item>
-
-        <b-list-group-item class="flex-column align-items-start">
-          <div class="text-center">
-            <h5 class="mb-1">{{ recipient }}</h5>
-          </div>
-        </b-list-group-item>
-      </b-list-group>
-      <b-row no-gutters v-if="!sendingTx">
-        <b-col class="text-center my-4">
-          <b-button variant="outline-primary mr-3">BACK</b-button>
-          <b-button variant="primary" @click="onConfirmSendClick">
-            SEND {{ amount }} {{ selectedNetwork.ticker }}
-          </b-button>
-        </b-col>
-      </b-row>
-      <b-row no-gutters class="mt-3 text-center" v-if="sendingTx">
-        <b-col>
-          <h4>Broadcasting Your Transaction</h4>
-          <b-spinner variant="primary" class="mb-3 mt-2" />
-          <b-progress :value="sendingSince" max="12" class="mb-3" animated></b-progress>
-        </b-col>
-      </b-row>
-    </b-modal>
-    <b-modal
-      id="success-modal"
-      no-close-on-esc
-      hide-header-close
-      no-close-on-backdrop
-      hide-header
-      hide-footer
-    >
-      <h4 class="text-center mt-4">Success!</h4>
-      <fa class="success-icon mx-auto d-block my-4" icon="glass-cheers" />
-      <p class="text-center">
-        <strong>{{ amount }} {{ selectedNetwork.ticker }}</strong>
-        has been sent to {{ recipient }}
-      </p>
-
-      <b-row class="mt-4">
-        <b-col sm="12" md="6" class="text-center mb-3 mb-md-0">
-          <b-button variant="outline-success" block @click="onBackToDasboardClick">
-            BACK TO DASHBOARD
-          </b-button>
-        </b-col>
-        <b-col sm="12" md="6" class="text-center">
-          <b-button variant="outline-success" block>
-            OPEN EXPLORER
-          </b-button>
-        </b-col>
-      </b-row>
-    </b-modal>
+    <ConfirmTXModal
+      :senderAddressInfo="senderAddressInfo"
+      :availableAmount="availableAmount"
+      :senderAddress="senderAddress"
+      :amount="amount"
+      :recipient="recipient"
+      :senderIndex="senderIndex"
+    />
   </b-container>
 </template>
 <script lang="ts">
@@ -150,6 +79,7 @@ import { BigNumber } from 'bignumber.js';
 import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
 import { sdk } from '@/sdk';
 import { humanReadableFlakes, networkKindToCoin } from '@/utils';
+import { ConfirmTXModal } from '@/components';
 import { Menu } from '@/components/common';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
@@ -161,6 +91,7 @@ interface SenderChoice {
 
 @Component({
   components: {
+    ConfirmTXModal,
     Menu,
   },
 })
@@ -178,8 +109,6 @@ export default class Send extends Vue {
   availableAmount: string | null = null;
   amount: number | null = null;
   recipient: string | null = null;
-  sendingTx = false;
-  sendingSince = 0;
   availableSenders: Array<SenderChoice> = [];
   account!: any;
 
@@ -261,22 +190,6 @@ export default class Send extends Vue {
     this.availableSenders = senders;
   }
 
-  private onConfirmSendClick(): void {
-    this.sendingTx = true;
-    const interval = setInterval(() => {
-      this.sendingSince += 1;
-      if (this.sendingSince >= 12) {
-        clearInterval(interval);
-        this.onTxSuccess();
-      }
-    }, 1000);
-  }
-
-  private onTxSuccess(): void {
-    this.$bvModal.hide('confirm-modal');
-    this.$bvModal.show('success-modal');
-  }
-
   private onSendClicked(): void {
     this.$bvModal.show('confirm-modal');
   }
@@ -295,10 +208,6 @@ export default class Send extends Vue {
     );
     this.senderAddressInfo = info;
     this.senderAddress = this.account.pub.keys[info.index].address;
-  }
-
-  private onBackToDasboardClick(): void {
-    this.$router.push({ name: 'Dashboard' });
   }
 }
 </script>

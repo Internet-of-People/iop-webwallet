@@ -955,7 +955,7 @@
 "@internet-of-people/morpheus-crypto@file:../morpheus-ts/packages/morpheus-crypto":
   version "2.0.7"
   dependencies:
-    "@internet-of-people/morpheus-crypto-wasm" "file:../../../.cache/yarn/v6/npm-@internet-of-people-morpheus-crypto-2.0.7-b638ad76-16a6-48a2-a2f3-e456ad6d9317-1590750668876/node_modules/@internet-of-people/morpheus-crypto-wasm"
+    "@internet-of-people/morpheus-crypto-wasm" "file:../../../.cache/yarn/v6/npm-@internet-of-people-morpheus-crypto-2.0.7-a8dcf44c-1e83-4d1f-91cd-5d13be09d6fe-1591002584191/node_modules/@internet-of-people/morpheus-crypto-wasm"
     multibase "0.6.0"
 
 "@internet-of-people/sdk@file:../morpheus-ts/packages/sdk":
@@ -963,7 +963,7 @@
   dependencies:
     "@arkecosystem/core-interfaces" "^2.6.31"
     "@arkecosystem/crypto" "^2.6.31"
-    "@internet-of-people/morpheus-crypto" "file:../../../.cache/yarn/v6/npm-@internet-of-people-sdk-2.0.7-ebcfc5ad-3cf4-4bc1-8aff-c8ee7d72ae3d-1590750668881/node_modules/@internet-of-people/morpheus-crypto"
+    "@internet-of-people/morpheus-crypto" "file:../../../.cache/yarn/v6/npm-@internet-of-people-sdk-2.0.7-7c1bf549-402a-4fdc-8cc0-354facc9ba2f-1591002584194/node_modules/@internet-of-people/morpheus-crypto"
     axios "0.19.0"
     bigint-hash "0.2.2"
     json-stable-stringify "1.0.1"

@@ -1,6 +1,10 @@
-# morpheus-webwallet
+# Hydra Webwallet
 
-## Project setup
+This repository contains the source code of the latest Hydra webwallet running at <https://wallet.iop.global>.
+
+Please visit our developer portal at <https://developer.iop.global> to get more information about Hydra, DAC and IoP.
+
+## Project Setup
 ```
 yarn install
 ```
@@ -20,5 +24,6 @@ yarn build
 yarn lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## License
+
+[AGPL-3](https://www.gnu.org/licenses/agpl-3.0.en.html)

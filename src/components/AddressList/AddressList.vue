@@ -53,7 +53,7 @@
                     Send {{ symbol }}
                   </b-dropdown-item>
                   <b-dropdown-divider></b-dropdown-divider>
-                  <b-dropdown-item href="#">
+                  <b-dropdown-item @click="onRenameClick(info.addressIndex)">
                     <fa :icon="['far', 'edit']" class="mr-2" />
                     Rename
                   </b-dropdown-item>
@@ -63,7 +63,10 @@
                     View
                   </b-dropdown-item>
                   <b-dropdown-divider></b-dropdown-divider>
-                  <b-dropdown-item href="#" variant="danger">
+                  <b-dropdown-item
+                    variant="danger"
+                    @click="onDeleteAddressClick(info.addressIndex)"
+                  >
                     <fa icon="eraser" class="mr-2" />
                     Delete
                   </b-dropdown-item>
@@ -85,6 +88,62 @@
         No available address.
       </b-alert>
     </b-row>
+    <b-modal
+      id="delete-address-modal"
+      :title="`Delete ${addressBeingHandled?addressBeingHandled.alias:''}?`"
+      no-close-on-esc
+      hide-header-close
+      no-close-on-backdrop
+      hide-footer
+    >
+      <b-alert show variant="info">
+        <strong>Are you sure you'd like to delete this address?</strong><br>
+        <p>
+          Deleting an address WILL NOT touch your balance in any way.
+          Only the wallet will not show the address anymore.
+        </p>
+      </b-alert>
+
+      <div>
+        <b-button
+          variant="outline-primary"
+          @click="$bvModal.hide('delete-address-modal')"
+          class="mr-3"
+        >
+          CANCEL
+        </b-button>
+        <b-button variant="outline-danger" @click="onConfirmDeleteClick">
+          YES, DELETE
+        </b-button>
+      </div>
+    </b-modal>
+
+    <b-modal id="rename-address-modal" title="Rename Address">
+      <b-form-group
+        id="alias"
+        description="E.g.: John's School Budget"
+        label="Address Alias"
+        label-for="alias"
+        :invalid-feedback="aliasInvalidFeedback"
+        :state="aliasState"
+        v-if="addressBeingHandled"
+      >
+        <b-form-input id="alias" v-model="addressBeingHandled.alias" :state="aliasState" trim />
+      </b-form-group>
+      <template v-slot:modal-footer>
+        <b-button
+          size="sm"
+          variant="outline-primary"
+          @click="$bvModal.hide('rename-address-modal')"
+        >
+          CANCEL
+        </b-button>
+        <!-- Button with custom close trigger value -->
+        <b-button size="sm" variant="primary" :disabled="!aliasState" @click="onConfirmRename">
+          SAVE
+        </b-button>
+      </template>
+    </b-modal>
   </b-overlay>
 </template>
 <script lang="ts">
@@ -93,6 +152,7 @@ import { Getter } from 'vuex-class';
 import { WalletNetworkInfo } from '@/types';
 import { networkKindToNetworkURL } from '@/utils';
 import { namespace as persisted } from '@/store/persisted';
+import { RenameAddressParams } from '@/store/persisted/types';
 import { AddressListRowInfo } from './types';
 
 @Component
@@ -101,16 +161,58 @@ export default class AddressList extends Vue {
   @Prop({ type: String, required: true }) symbol!: string;
   @Prop({ type: Array, required: true }) rows!: Array<AddressListRowInfo>;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
+  addressBeingHandled: AddressListRowInfo | null = null;
 
-  onRefreshClick(): void {
+  // TODO it's duplicated from NewAddressModal
+  get aliasState(): boolean | null {
+    if (!this.addressBeingHandled || this.addressBeingHandled!.alias === '') {
+      return null;
+    }
+    const trimmed = this.addressBeingHandled!.alias.trim();
+    return trimmed.length >= 3 && trimmed.length < 20;
+  }
+
+  // TODO it's duplicated from NewAddressModal
+  get aliasInvalidFeedback(): string {
+    return 'The alias\'s length must be at least 3 and less then 20';
+  }
+
+  private onConfirmRename(): void {
+    this.$store.dispatch(`${persisted}/renameAddress`, {
+      index: this.addressBeingHandled!.addressIndex,
+      alias: this.addressBeingHandled!.alias,
+    } as RenameAddressParams);
+    this.addressBeingHandled = null;
+    this.$emit('onDataChanged');
+    this.$bvModal.hide('rename-address-modal');
+  }
+
+  private onRenameClick(index: number): void {
+    this.setAddressBeingHandledByIndex(index);
+    this.$bvModal.show('rename-address-modal');
+  }
+
+  private onConfirmDeleteClick(): void {
+    this.$store.dispatch(`${persisted}/removeAddress`, this.addressBeingHandled!.addressIndex);
+    this.addressBeingHandled = null;
+    this.$emit('onDataChanged');
+    this.$bvModal.hide('delete-address-modal');
+  }
+
+  private onDeleteAddressClick(index: number): void {
+    this.setAddressBeingHandledByIndex(index);
+    this.$bvModal.show('delete-address-modal');
+  }
+
+  private onRefreshClick(): void {
     this.$emit('onRefreshClicked');
   }
 
-  onAddClick(): void {
+  private onAddClick(): void {
     this.$emit('onAddClicked');
   }
 
-  onSendButtonClick(path: string): void {
+  private onSendButtonClick(path: string): void {
     this.$router.push({
       name: 'Send',
       params: {
@@ -120,10 +222,21 @@ export default class AddressList extends Vue {
     });
   }
 
-  onViewAddressClick(address: string): void {
+  private onViewAddressClick(address: string): void {
     const baseUrl = networkKindToNetworkURL(this.selectedNetwork.kind);
     const url = `${baseUrl}/#/wallets/${address}`;
     window.open(url)!.focus();
+  }
+
+  private setAddressBeingHandledByIndex(index: number): void {
+    for (const info of this.rows) {
+      if (info.addressIndex === index) {
+        this.addressBeingHandled = { ...info };
+        return;
+      }
+    }
+
+    throw new Error(`Address not found with index ${index}`);
   }
 }
 </script>

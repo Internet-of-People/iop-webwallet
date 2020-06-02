@@ -168,7 +168,10 @@ export default class Send extends Vue {
     const addresses = Object.entries(walletState[this.selectedNetwork.kind][USED_HYDRA_ACCOUNT]);
 
     for (const [index, info] of addresses) {
-      const { address } = this.account.pub.getKey(parseInt(index, 10));
+      if (info.deleted) {
+        continue;
+      }
+      const { address } = this.account.pub.key(parseInt(index, 10));
       const balance = `${humanReadableFlakes(new BigNumber(info.balance))}`;
       senders.push({
         value: index,
@@ -196,7 +199,7 @@ export default class Send extends Vue {
       new BigNumber(info.balance),
     );
     this.senderAddressInfo = info;
-    this.senderAddress = this.account.pub.keys[info.index].address;
+    this.senderAddress = this.account.pub.key(info.index).address;
   }
 }
 </script>

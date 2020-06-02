@@ -15,6 +15,7 @@ export interface AddressInfo {
   alias: string;
   balance: string;
   network: WalletNetworkInfo;
+  deleted: boolean;
 }
 
 export interface AddressMap {

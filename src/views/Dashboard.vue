@@ -27,6 +27,7 @@
           :rows="addressRows"
           @onRefreshClicked="refreshAddresses"
           @onAddClicked="onAddAddressClicked"
+          @onDataChanged="refreshAddresses"
         />
       </b-col>
     </b-row>
@@ -58,6 +59,7 @@ import {
 import { AddressListRowInfo } from '@/components/AddressList';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
+import { WalletRootState } from '../store/types';
 
 @Component({
   components: {
@@ -96,7 +98,7 @@ export default class Dashboard extends Vue {
       askUnlockPassword: async (forDecrypt: boolean): Promise<string> => this.unlockPassword,
     });
 
-    await this.buildData();
+    await this.refreshAddresses();
     this.loadingAddresses = false;
   }
 
@@ -110,8 +112,7 @@ export default class Dashboard extends Vue {
     const maxIndex = indices.length === 0 ? -1 : Math.max(...indices);
     const nextIndex = maxIndex + 1;
 
-    account.pub.setCount(1000);// TODO: remove this
-    this.nextAddress = account.pub.getKey(nextIndex).address;
+    this.nextAddress = account.pub.key(nextIndex).address;
     this.nextAddressIndex = nextIndex;
     this.$bvModal.show('add-address-modal');
   }
@@ -142,13 +143,15 @@ export default class Dashboard extends Vue {
 
   private async buildData(): Promise<void> {
     const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
-    account.pub.setCount(1000);// TODO: remove this
     const walletState = this.vaultState[this.selectedWalletHash];
 
     let totalFlakes = new BigNumber(0);
     const addressRows: Array<AddressListRowInfo> = [];
     for (const [index, info] of Object.entries(walletState[this.selectedNetwork.kind][0])) {
-      const { address } = account.pub.getKey(parseInt(index, 10));
+      if (info.deleted) {
+        continue;
+      }
+      const { address } = account.pub.key(parseInt(index, 10));
 
       addressRows.push({
         address,
@@ -171,6 +174,7 @@ export default class Dashboard extends Vue {
       alias,
       balance: '0',
       network: this.selectedNetwork,
+      deleted: false,
     } as AddressInfo);
     await this.refreshAddresses();
   }

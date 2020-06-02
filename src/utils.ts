@@ -93,13 +93,10 @@ export const rewindNetworkToState = async (
   let lastWalletIndexHasBalance = 0;
   const persistedState: PersistedState = ((stateStore.state as any)[persisted] as PersistedState);
   const wallets: Array<AddressInfo> = [];
-  const accountIndex = 0; // TODO: currently it only handles the first account
 
   /* eslint-disable no-constant-condition */
   while (true) {
-    /* eslint-disable no-await-in-loop */
-    await account.pub.createKey();
-    const key = account.pub.keys[index];
+    const key = account.pub.key(index);
     /* eslint-disable no-await-in-loop */
     const wallet = await api.getWallet(key.address);
     const balance = wallet.isPresent() ? wallet.get().balance : '0';
@@ -109,14 +106,17 @@ export const rewindNetworkToState = async (
       throw new Error(`Wallet cannot be revinded as it has not yet added: ${persistedState.selectedWalletHash}`);
     }
 
-    const addressInfo = walletState[persistedState.selectedNetwork!.kind][accountIndex][index];
+    const addressInfo = walletState[persistedState.selectedNetwork!.kind][USED_HYDRA_ACCOUNT][
+      index
+    ];
 
     wallets.push({
       alias: addressInfo ? addressInfo.alias : `Address-${index}`,
-      accountIndex,
+      accountIndex: USED_HYDRA_ACCOUNT,
       balance,
       index,
       network: networkKindToNetworkInfo(networkKind),
+      deleted: addressInfo ? addressInfo.deleted : false,
     } as AddressInfo);
 
     if (wallet.isPresent()) {

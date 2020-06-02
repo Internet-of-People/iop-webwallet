@@ -90,7 +90,7 @@
     </b-row>
     <b-modal
       id="delete-address-modal"
-      :title="`Delete ${addressBeingHandled?addressBeingHandled.alias:''}?`"
+      :title="`Delete ${actingAddressAlias}?`"
       no-close-on-esc
       hide-header-close
       no-close-on-backdrop
@@ -117,90 +117,69 @@
         </b-button>
       </div>
     </b-modal>
-
-    <b-modal id="rename-address-modal" title="Rename Address">
-      <b-form-group
-        id="alias"
-        description="E.g.: John's School Budget"
-        label="Address Alias"
-        label-for="alias"
-        :invalid-feedback="aliasInvalidFeedback"
-        :state="aliasState"
-        v-if="addressBeingHandled"
-      >
-        <b-form-input id="alias" v-model="addressBeingHandled.alias" :state="aliasState" trim />
-      </b-form-group>
-      <template v-slot:modal-footer>
-        <b-button
-          size="sm"
-          variant="outline-primary"
-          @click="$bvModal.hide('rename-address-modal')"
-        >
-          CANCEL
-        </b-button>
-        <!-- Button with custom close trigger value -->
-        <b-button size="sm" variant="primary" :disabled="!aliasState" @click="onConfirmRename">
-          SAVE
-        </b-button>
-      </template>
-    </b-modal>
+    <AddressAliasModal
+      :visible.sync="aliasAddressModalVisible"
+      :alias="actingAddressAlias"
+      @onSave="onAddressAliased"
+    />
   </b-overlay>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
+import { AddressAliasModal } from '@/components/AddressAliasModal';
 import { WalletNetworkInfo } from '@/types';
 import { networkKindToNetworkURL } from '@/utils';
 import { namespace as persisted } from '@/store/persisted';
 import { RenameAddressParams } from '@/store/persisted/types';
 import { AddressListRowInfo } from './types';
 
-@Component
+@Component({
+  components: {
+    AddressAliasModal,
+  },
+})
 export default class AddressList extends Vue {
   @Prop({ type: Boolean, required: true }) loading = true;
   @Prop({ type: String, required: true }) symbol!: string;
   @Prop({ type: Array, required: true }) rows!: Array<AddressListRowInfo>;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
-  addressBeingHandled: AddressListRowInfo | null = null;
+  aliasAddressModalVisible = false;
+  actingAddressIndex: number | null = null;
 
-  // TODO it's duplicated from NewAddressModal
-  get aliasState(): boolean | null {
-    if (!this.addressBeingHandled || this.addressBeingHandled!.alias === '') {
-      return null;
+  get actingAddressAlias(): string {
+    for (const info of this.rows) {
+      if (info.addressIndex === this.actingAddressIndex) {
+        return info.alias;
+      }
     }
-    const trimmed = this.addressBeingHandled!.alias.trim();
-    return trimmed.length >= 3 && trimmed.length < 20;
+
+    return '';
   }
 
-  // TODO it's duplicated from NewAddressModal
-  get aliasInvalidFeedback(): string {
-    return 'The alias\'s length must be at least 3 and less then 20';
-  }
-
-  private onConfirmRename(): void {
+  private onAddressAliased(alias: string): void {
     this.$store.dispatch(`${persisted}/renameAddress`, {
-      index: this.addressBeingHandled!.addressIndex,
-      alias: this.addressBeingHandled!.alias,
+      index: this.actingAddressIndex,
+      alias,
     } as RenameAddressParams);
-    this.addressBeingHandled = null;
+    this.actingAddressIndex = null;
     this.$emit('onDataChanged');
-    this.$bvModal.hide('rename-address-modal');
   }
 
   private onRenameClick(index: number): void {
-    this.setAddressBeingHandledByIndex(index);
-    this.$bvModal.show('rename-address-modal');
+    this.actingAddressIndex = index;
+    this.aliasAddressModalVisible = true;
   }
 
   private onConfirmDeleteClick(): void {
-    this.$store.dispatch(`${persisted}/removeAddress`, this.addressBeingHandled!.addressIndex);
-    this.addressBeingHandled = null;
+    this.$store.dispatch(`${persisted}/removeAddress`, this.actingAddressIndex);
+    this.actingAddressIndex = null;
     this.$emit('onDataChanged');
     this.$bvModal.hide('delete-address-modal');
   }
 
   private onDeleteAddressClick(index: number): void {
-    this.setAddressBeingHandledByIndex(index);
+    this.actingAddressIndex = index;
     this.$bvModal.show('delete-address-modal');
   }
 
@@ -226,17 +205,6 @@ export default class AddressList extends Vue {
     const baseUrl = networkKindToNetworkURL(this.selectedNetwork.kind);
     const url = `${baseUrl}/#/wallets/${address}`;
     window.open(url)!.focus();
-  }
-
-  private setAddressBeingHandledByIndex(index: number): void {
-    for (const info of this.rows) {
-      if (info.addressIndex === index) {
-        this.addressBeingHandled = { ...info };
-        return;
-      }
-    }
-
-    throw new Error(`Address not found with index ${index}`);
   }
 }
 </script>

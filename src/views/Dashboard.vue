@@ -31,7 +31,10 @@
         />
       </b-col>
     </b-row>
-    <NewAddressModal @onSave="onNewAddressSaved" :address="nextAddress" />
+    <AddressAliasModal
+      :visible.sync="aliasAddressModalVisible"
+      @onSave="onAddressAliased"
+      :address="nextAddress" />
   </b-container>
 </template>
 <script lang="ts">
@@ -53,7 +56,7 @@ import {
 import { sdk } from '@/sdk';
 import { Menu } from '@/components/common';
 import {
-  AddressList, NetworkSelector, NewAddressModal, TotalBalance,
+  AddressList, NetworkSelector, AddressAliasModal, TotalBalance,
 } from '@/components';
 
 import { AddressListRowInfo } from '@/components/AddressList';
@@ -66,7 +69,7 @@ import { WalletRootState } from '../store/types';
     AddressList,
     Menu,
     NetworkSelector,
-    NewAddressModal,
+    AddressAliasModal,
     TotalBalance,
   },
 })
@@ -76,6 +79,7 @@ export default class Dashboard extends Vue {
   @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
+  aliasAddressModalVisible = false;
   loadingAddresses = true;
   addressRows: Array<AddressListRowInfo> = [];
   totalBalance = '0';
@@ -114,7 +118,7 @@ export default class Dashboard extends Vue {
 
     this.nextAddress = account.pub.key(nextIndex).address;
     this.nextAddressIndex = nextIndex;
-    this.$bvModal.show('add-address-modal');
+    this.aliasAddressModalVisible = true;
   }
 
   private async changeNetwork(network: WalletNetworkKind): Promise<void> {
@@ -167,7 +171,7 @@ export default class Dashboard extends Vue {
     this.totalBalance = humanReadableFlakes(totalFlakes);
   }
 
-  private async onNewAddressSaved(alias: string): Promise<void> {
+  private async onAddressAliased(alias: string): Promise<void> {
     this.$store.dispatch(`${persisted}/addAddress`, {
       index: this.nextAddressIndex,
       accountIndex: USED_HYDRA_ACCOUNT,

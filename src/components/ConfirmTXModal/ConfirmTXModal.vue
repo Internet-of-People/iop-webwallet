@@ -155,7 +155,7 @@ export default class Send extends Vue {
     const account = await hydraAccount(vault, this.selectedNetwork.kind);
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
     const { wif } = (await account.priv()).key(this.senderIndex!);
-    const amount = sdk.Ark.Utils.BigNumber.make(this.amount! * 1e8);
+    const amount = BigInt(this.amount) * BigInt(1e8);
 
     try {
       this.txId = await api.sendTransferTxWithWIF(

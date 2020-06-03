@@ -5,24 +5,35 @@ This repository contains the source code of the latest Hydra webwallet running a
 Please visit our developer portal at <https://developer.iop.global> to get more information about Hydra, DAC and IoP.
 
 ## Project Setup
-```
-yarn install
+
+```bash
+$ npm install
 ```
 
 ### Compiles and hot-reloads for development
-```
-yarn serve
+
+```bash
+$ npm run serve
 ```
 
 ### Compiles and minifies for production
+
+```bash
+$ npm run build
 ```
-yarn build
+
+### Run your unit tests
+
+```bash
+$ npm run test:unit
 ```
 
 ### Lints and fixes files
+
+```bash
+$ npm run lint
 ```
-yarn lint
-```
+
 
 ## License
 

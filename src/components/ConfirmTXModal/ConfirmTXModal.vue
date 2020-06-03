@@ -116,7 +116,6 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
-import { BigNumber } from 'bignumber.js';
 import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
 import {
   networkKindToSDKNetwork,

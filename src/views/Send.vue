@@ -75,7 +75,6 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
-import { BigNumber } from 'bignumber.js';
 import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
 import { sdk } from '@/sdk';
 import {
@@ -118,8 +117,11 @@ export default class Send extends Vue {
     if (!this.amount || this.amount === 0) {
       return null;
     }
-    return this.amount >= 0.01
-      && new BigNumber(this.senderAddressInfo!.balance).isGreaterThan(this.amount * 1e8);
+
+    const senderBalance = BigInt(this.senderAddressInfo!.balance);
+    const available = (BigInt(this.amount) * BigInt(1e8));
+
+    return this.amount >= 0.01 && senderBalance > available;
   }
 
   get recipientState(): boolean | null {
@@ -172,7 +174,7 @@ export default class Send extends Vue {
         continue;
       }
       const { address } = this.account.pub.key(parseInt(index, 10));
-      const balance = `${humanReadableFlakes(new BigNumber(info.balance))}`;
+      const balance = `${humanReadableFlakes(BigInt(info.balance))}`;
       senders.push({
         value: index,
         text: `${info.alias} - ${address} (${balance} ${this.selectedNetwork.ticker})`,
@@ -195,9 +197,7 @@ export default class Send extends Vue {
     const walletState = this.vaultState[this.selectedWalletHash];
     const info = walletState[this.selectedNetwork.kind][USED_HYDRA_ACCOUNT][this.senderIndex!];
 
-    this.availableAmount = humanReadableFlakes(
-      new BigNumber(info.balance),
-    );
+    this.availableAmount = humanReadableFlakes(BigInt(info.balance));
     this.senderAddressInfo = info;
     this.senderAddress = this.account.pub.key(info.index).address;
   }

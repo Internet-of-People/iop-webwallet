@@ -40,7 +40,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
-import { BigNumber } from 'bignumber.js';
 import {
   VaultState, AddressInfo, WalletNetworkInfo, WalletNetworkKind,
 } from '@/types';
@@ -52,6 +51,7 @@ import {
   networkKindToSDKNetwork,
   rewindNetworkToState,
   USED_HYDRA_ACCOUNT,
+  DefaultNetworkAccessorFactory,
 } from '@/utils';
 import { sdk } from '@/sdk';
 import { Menu } from '@/components/common';
@@ -135,10 +135,12 @@ export default class Dashboard extends Vue {
     this.loadingAddresses = true;
 
     await rewindNetworkToState(
-      this.selectedNetwork.kind,
-      this.serializedVault,
+      await DefaultNetworkAccessorFactory.create(
+        this.selectedNetwork.kind,
+        this.serializedVault,
+        async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
+      ),
       this.$store,
-      async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
     );
 
     await this.buildData();
@@ -149,7 +151,7 @@ export default class Dashboard extends Vue {
     const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
     const walletState = this.vaultState[this.selectedWalletHash];
 
-    let totalFlakes = new BigNumber(0);
+    let totalFlakes = 0n;
     const addressRows: Array<AddressListRowInfo> = [];
     for (const [index, info] of Object.entries(walletState[this.selectedNetwork.kind][0])) {
       if (info.deleted) {
@@ -160,11 +162,11 @@ export default class Dashboard extends Vue {
       addressRows.push({
         address,
         alias: info.alias,
-        balance: humanReadableFlakes(new BigNumber(info.balance)),
+        balance: humanReadableFlakes(BigInt(info.balance)),
         accountIndex: 0,
         addressIndex: parseInt(index, 10),
       });
-      totalFlakes = totalFlakes.plus(info.balance);
+      totalFlakes += BigInt(info.balance);
     }
 
     this.addressRows = addressRows;

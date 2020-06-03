@@ -2,13 +2,16 @@ import { BigNumber } from 'bignumber.js';
 import { Store } from 'vuex';
 import { WalletNetworkKind, AddressInfo, WalletNetworkInfo } from '@/types';
 import { sdk } from '@/sdk';
+import { Types } from '@internet-of-people/sdk';
 import { WalletRootState } from '@/store/types';
 import { namespace as persisted } from '@/store/persisted';
 import { PersistedState } from '@/store/persisted/types';
 
 export const USED_HYDRA_ACCOUNT = 0; // TODO: we only handle the 1st accout now
 
-export const humanReadableFlakes = (flakes: BigNumber): string => flakes.dividedBy(1e8).toFormat(4);
+export const humanReadableFlakes = (flakes: BigInt): string => new BigNumber(flakes.toString())
+  .dividedBy(1e8)
+  .toFormat(4, BigNumber.ROUND_FLOOR);
 
 export const networkKindToCoin = (networkKind: WalletNetworkKind): any => {
   switch (networkKind) {
@@ -71,23 +74,40 @@ export const hydraAccount = (
 type UnlockPasswordCallback = (forDecrypt: boolean) => Promise<string>;
 const REWIND_GAP = 5;
 
+export interface NetworkAccess {
+  api: Types.Layer1.IApi;
+  vault: any;
+  account: any;
+  networkKind: WalletNetworkKind;
+}
+
+export class DefaultNetworkAccessorFactory {
+  static async create(
+    networkKind: WalletNetworkKind,
+    serializedVault: string,
+    unlockPasswordCallback: UnlockPasswordCallback,
+  ): Promise<NetworkAccess> {
+    const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(networkKind));
+
+    const vault = await sdk.Crypto.XVault.load(JSON.parse(serializedVault), {
+      askUnlockPassword: unlockPasswordCallback,
+    });
+
+    const account = await sdk.Crypto.hydra(
+      vault,
+      { network: networkKindToCoin(networkKind), account: 0 },
+    );
+
+    return {
+      api, vault, account, networkKind,
+    };
+  }
+}
+
 export const rewindNetworkToState = async (
-  networkKind: WalletNetworkKind,
-  serializedVault: string,
+  networkAccess: NetworkAccess,
   stateStore: Store<WalletRootState>,
-  unlockPasswordCallback: UnlockPasswordCallback,
 ): Promise<void> => {
-  const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(networkKind));
-
-  const vault = await sdk.Crypto.XVault.load(JSON.parse(serializedVault), {
-    askUnlockPassword: unlockPasswordCallback,
-  });
-
-  const account = await sdk.Crypto.hydra(
-    vault,
-    { network: networkKindToCoin(networkKind), account: 0 },
-  );
-
   let index = 0;
   let numOfEmptyInARow = 0;
   let lastWalletIndexHasBalance = 0;
@@ -96,9 +116,9 @@ export const rewindNetworkToState = async (
 
   /* eslint-disable no-constant-condition */
   while (true) {
-    const key = account.pub.key(index);
+    const key = networkAccess.account.pub.key(index);
     /* eslint-disable no-await-in-loop */
-    const wallet = await api.getWallet(key.address);
+    const wallet = await networkAccess.api.getWallet(key.address);
     const balance = wallet.isPresent() ? wallet.get().balance : '0';
     const walletState = persistedState.vaultState[persistedState.selectedWalletHash!];
 
@@ -115,7 +135,7 @@ export const rewindNetworkToState = async (
       accountIndex: USED_HYDRA_ACCOUNT,
       balance,
       index,
-      network: networkKindToNetworkInfo(networkKind),
+      network: networkKindToNetworkInfo(networkAccess.networkKind),
       deleted: addressInfo ? addressInfo.deleted : false,
     } as AddressInfo);
 

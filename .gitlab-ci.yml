@@ -1,6 +1,18 @@
 stages:
+  - test
   - deploy
   - docker
+
+test:
+  stage: test
+  image: node:12
+  cache:
+    paths:
+    - node_modules/
+  before_script:
+    - npm ci
+  script:
+    - npm test
 
 docker:
   stage: docker

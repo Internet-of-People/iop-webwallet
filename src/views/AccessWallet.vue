@@ -54,7 +54,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { createHash } from 'crypto';
-import { rewindNetworkToState, networkKindToTicker } from '@/utils';
+import { rewindNetworkToState, networkKindToTicker, DefaultNetworkAccessorFactory } from '@/utils';
 import { AskForPasswordModal } from '@/components/common';
 import { namespace as inmemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
@@ -104,10 +104,12 @@ export default class AccessWallet extends Vue {
     this.loading = true;
 
     await rewindNetworkToState(
-      this.selectedNetwork.kind,
-      this.serializedVault,
+      await DefaultNetworkAccessorFactory.create(
+        this.selectedNetwork.kind,
+        this.serializedVault,
+        async (_forDecrypt: boolean): Promise<string> => password,
+      ),
       this.$store,
-      async (_forDecrypt: boolean): Promise<string> => password,
     );
 
     this.$router.push({ name: 'Dashboard' });

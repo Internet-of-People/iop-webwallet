@@ -3,8 +3,8 @@ module.exports = {
   env: {
     node: true,
   },
-  globals:{
-    'BigInt':true
+  globals: {
+    BigInt: true,
   },
   extends: [
     'plugin:vue/essential',

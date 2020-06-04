@@ -170,11 +170,6 @@ export default class Send extends Vue {
     }
   }
 
-  private onTxSuccess(): void {
-    this.$bvModal.hide('confirm-modal');
-    this.$bvModal.show('success-modal');
-  }
-
   private onBackToDasboardClick(): void {
     this.$router.push({ name: 'Dashboard' });
   }
@@ -189,7 +184,8 @@ export default class Send extends Vue {
     const interval = setInterval(async () => {
       if ((await api.getTxnStatus(this.txId)).isPresent()) {
         clearInterval(interval);
-        this.onTxSuccess();
+        this.$bvModal.hide('confirm-modal');
+        this.$bvModal.show('success-modal');
         return;
       }
 

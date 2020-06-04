@@ -30,5 +30,6 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     'no-unused-expressions': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
+    'no-unexpected-multiline': 'off',
   },
 };

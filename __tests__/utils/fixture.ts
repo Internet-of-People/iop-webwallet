@@ -1,14 +1,11 @@
 import Optional from 'optional-js';
 import { Store } from 'vuex';
 import { Types } from '@internet-of-people/sdk';
-import { WalletNetworkKind, AddressMap } from '../src/types';
-import { networkKindToNetworkInfo } from '../src/utils';
-import { PersistedState } from '../src/store/persisted/types';
-import { WalletRootState } from '../src/store/types';
-
-export interface SomethingHasAddress {
-  address: string;
-}
+import { SomethingHasAddress } from '../common';
+import { WalletNetworkKind, AddressMap } from '../../src/types';
+import { networkKindToNetworkInfo } from '../../src/utils/convert';
+import { PersistedState } from '../../src/store/persisted/types';
+import { WalletRootState } from '../../src/store/types';
 
 export const walletBalance = (balance: string): Types.Layer1.IWalletResponse => ({
   address: '',

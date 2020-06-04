@@ -1,78 +1,16 @@
-import { BigNumber } from 'bignumber.js';
 import { Store } from 'vuex';
-import { WalletNetworkKind, AddressInfo, WalletNetworkInfo } from '@/types';
-import { sdk } from '@/sdk';
 import { Types } from '@internet-of-people/sdk';
+import { sdk } from '@/sdk';
+import { WalletNetworkKind, AddressInfo } from '@/types';
 import { WalletRootState } from '@/store/types';
-import { namespace as persisted } from '@/store/persisted';
 import { PersistedState } from '@/store/persisted/types';
+import { namespace as persisted } from '@/store/persisted';
+import { networkKindToSDKNetwork, networkKindToCoin, networkKindToNetworkInfo } from './convert';
+import { USED_HYDRA_ACCOUNT } from './consts';
 
-export const USED_HYDRA_ACCOUNT = 0; // TODO: we only handle the 1st accout now
-
-export const humanReadableFlakes = (flakes: BigInt): string => new BigNumber(flakes.toString())
-  .dividedBy(1e8)
-  .toFormat(4, BigNumber.ROUND_FLOOR);
-
-export const networkKindToCoin = (networkKind: WalletNetworkKind): any => {
-  switch (networkKind) {
-    case WalletNetworkKind.HydraTestnet:
-      return sdk.Crypto.Coin.Hydra.Testnet;
-    case WalletNetworkKind.HydraDevnet:
-      return sdk.Crypto.Coin.Hydra.Devnet;
-    case WalletNetworkKind.HydraMainnet:
-      return sdk.Crypto.Coin.Hydra.Mainnet;
-    default:
-      throw new Error(`Unknown network ${networkKind}`);
-  }
-};
-
-export const networkKindToSDKNetwork = (networkKind: WalletNetworkKind): any => {
-  switch (networkKind) {
-    case WalletNetworkKind.HydraTestnet:
-      return sdk.Network.Testnet;
-    case WalletNetworkKind.HydraDevnet:
-      return sdk.Network.Devnet;
-    case WalletNetworkKind.HydraMainnet:
-      return sdk.Network.Mainnet;
-    default:
-      throw new Error(`Unknown network ${networkKind}`);
-  }
-};
-
-export const networkKindToNetworkURL = (
-  networkKind: WalletNetworkKind,
-): string => sdk.schemaAndHost(networkKindToSDKNetwork(networkKind));
-
-export const networkKindToTicker = (networkKind: WalletNetworkKind): string => {
-  switch (networkKind) {
-    case WalletNetworkKind.HydraTestnet:
-      return 'THYD';
-    case WalletNetworkKind.HydraDevnet:
-      return 'DHYD';
-    case WalletNetworkKind.HydraMainnet:
-      return 'HYD';
-    default:
-      throw new Error(`Unknown network: ${networkKind}`);
-  }
-};
-
-export const networkKindToNetworkInfo = (
-  networkKind: WalletNetworkKind,
-): WalletNetworkInfo => ({ kind: networkKind, ticker: networkKindToTicker(networkKind) });
-
-export const hydraAccount = (
-  vault: any,
-  networkKind: WalletNetworkKind,
-): Promise<any> => sdk.Crypto.hydra(
-  vault,
-  {
-    network: networkKindToCoin(networkKind),
-    account: USED_HYDRA_ACCOUNT,
-  },
-);
+const REWIND_GAP = 5;
 
 type UnlockPasswordCallback = (forDecrypt: boolean) => Promise<string>;
-const REWIND_GAP = 5;
 
 export interface NetworkAccess {
   api: Types.Layer1.IApi;

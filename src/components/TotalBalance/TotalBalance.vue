@@ -8,7 +8,7 @@
             <b-card-title>Balance</b-card-title>
             <b-card-text>
               <h5 v-if="loading">Loading...</h5>
-              <p v-else class="mb-0">{{ balance }} {{ symbol }}</p>
+              <p v-else class="mb-0">{{ balance }} {{ ticker }}</p>
             </b-card-text>
           </b-col>
           <b-col cols="2" class="text-right">
@@ -28,12 +28,24 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Getter } from 'vuex-class';
+import { namespace as persisted } from '@/store/persisted';
+import { humanReadableFlakes } from '@/utils';
+import { WalletNetworkInfo } from '@/types';
 
 @Component
 export default class TotalBalance extends Vue {
   @Prop({ type: Boolean, required: true }) loading = true;
-  @Prop({ type: String, required: true }) balance!: string;
-  @Prop({ type: String, required: true }) symbol!: string;
+  @Getter('totalFlakes', { namespace: persisted }) totalFlakes!: BigInt;
+  @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
+
+  get balance(): string {
+    return humanReadableFlakes(this.totalFlakes);
+  }
+
+  get ticker(): string {
+    return this.selectedNetwork.ticker;
+  }
 
   onRefreshClick() {
     this.$emit('onRefreshClicked');

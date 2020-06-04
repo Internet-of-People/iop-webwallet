@@ -50,7 +50,7 @@
                     @click="onSendButtonClick(`${info.accountIndex}.${info.addressIndex}`)"
                   >
                     <fa :icon="['far', 'money-bill-alt']" class="mr-2" />
-                    Send {{ symbol }}
+                    Send {{ ticker }}
                   </b-dropdown-item>
                   <b-dropdown-divider></b-dropdown-divider>
                   <b-dropdown-item @click="onRenameClick(info.addressIndex)">
@@ -78,7 +78,7 @@
             <small>{{ info.address }}</small>
           </b-card-sub-title>
           <b-card-text>
-            <h5>{{ info.balance }} {{ symbol }}</h5>
+            <h5>{{ info.balance }} {{ ticker }}</h5>
           </b-card-text>
         </b-card>
       </b-col>
@@ -141,11 +141,14 @@ import { AddressListRowInfo } from './types';
 })
 export default class AddressList extends Vue {
   @Prop({ type: Boolean, required: true }) loading = true;
-  @Prop({ type: String, required: true }) symbol!: string;
   @Prop({ type: Array, required: true }) rows!: Array<AddressListRowInfo>;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   aliasAddressModalVisible = false;
   actingAddressIndex: number | null = null;
+
+  get ticker(): string {
+    return this.selectedNetwork.ticker;
+  }
 
   get actingAddressAlias(): string {
     for (const info of this.rows) {
@@ -195,7 +198,7 @@ export default class AddressList extends Vue {
     this.$router.push({
       name: 'Send',
       params: {
-        ticker: this.symbol,
+        ticker: this.selectedNetwork.ticker,
         from: path,
       },
     });

@@ -9,8 +9,6 @@
           <b-col md="12" lg="6">
             <TotalBalance
               :loading="loadingAddresses"
-              :balance="totalBalance"
-              :symbol="symbol"
               @onRefreshClicked="refreshAddresses"
             />
           </b-col>
@@ -23,7 +21,6 @@
         </b-row>
         <AddressList
           :loading="loadingAddresses"
-          :symbol="symbol"
           :rows="addressRows"
           @onRefreshClicked="refreshAddresses"
           @onAddClicked="onAddAddressClicked"
@@ -59,7 +56,7 @@ import {
   AddressList, NetworkSelector, AddressAliasModal, TotalBalance,
 } from '@/components';
 
-import { AddressListRowInfo } from '@/components/AddressList';
+import { buildRowsFromState, AddressListRowInfo } from '@/components/AddressList';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { WalletRootState } from '../store/types';
@@ -76,27 +73,19 @@ import { WalletRootState } from '../store/types';
 export default class Dashboard extends Vue {
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
-  @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
-  @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
+  @Getter('nextAddressIndex', { namespace: persisted }) nextAddressIndex!: number;
   aliasAddressModalVisible = false;
   loadingAddresses = true;
   addressRows: Array<AddressListRowInfo> = [];
-  totalBalance = '0';
-  api!: any;
-  symbol = '';
   vault: any;
   nextAddress = '';
-  nextAddressIndex!: number;
 
   async mounted(): Promise<void> {
     if (!this.serializedVault) {
       this.$router.push({ name: 'Home' });
       return;
     }
-
-    this.api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
-    this.symbol = networkKindToTicker(this.selectedNetwork.kind);
 
     this.vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
       askUnlockPassword: async (forDecrypt: boolean): Promise<string> => this.unlockPassword,
@@ -108,26 +97,25 @@ export default class Dashboard extends Vue {
 
   private async onAddAddressClicked(): Promise<void> {
     const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
-    const walletState = this.vaultState[this.selectedWalletHash];
-    const indices = Object.keys(
-      walletState[this.selectedNetwork.kind][0],
-    ).map((index) => parseInt(index, 10));
-
-    const maxIndex = indices.length === 0 ? -1 : Math.max(...indices);
-    const nextIndex = maxIndex + 1;
-
-    this.nextAddress = account.pub.key(nextIndex).address;
-    this.nextAddressIndex = nextIndex;
+    console.log(this.nextAddressIndex);
+    this.nextAddress = (account.pub.key(this.nextAddressIndex)).address;
     this.aliasAddressModalVisible = true;
   }
 
-  private async changeNetwork(network: WalletNetworkKind): Promise<void> {
-    this.$store.dispatch(`${persisted}/setNetwork`, {
-      kind: network,
-      ticker: networkKindToTicker(network),
-    } as WalletNetworkInfo);
-    this.api = await sdk.Layer1.createApi(networkKindToSDKNetwork(network));
-    this.symbol = networkKindToTicker(this.selectedNetwork.kind);
+  private async onAddressAliased(alias: string): Promise<void> {
+    this.$store.dispatch(`${persisted}/addAddress`, {
+      index: this.nextAddressIndex,
+      accountIndex: USED_HYDRA_ACCOUNT,
+      alias,
+      balance: '0',
+      network: this.selectedNetwork,
+      deleted: false,
+    } as AddressInfo);
+    await this.refreshAddresses();
+  }
+
+  private async changeNetwork(networkKind: WalletNetworkKind): Promise<void> {
+    this.$store.dispatch(`${persisted}/setNetwork`, networkKind);
     await this.refreshAddresses();
   }
 
@@ -143,46 +131,9 @@ export default class Dashboard extends Vue {
       this.$store,
     );
 
-    await this.buildData();
-    this.loadingAddresses = false;
-  }
-
-  private async buildData(): Promise<void> {
     const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
-    const walletState = this.vaultState[this.selectedWalletHash];
-
-    let totalFlakes = 0n;
-    const addressRows: Array<AddressListRowInfo> = [];
-    for (const [index, info] of Object.entries(walletState[this.selectedNetwork.kind][0])) {
-      if (info.deleted) {
-        continue;
-      }
-      const { address } = account.pub.key(parseInt(index, 10));
-
-      addressRows.push({
-        address,
-        alias: info.alias,
-        balance: humanReadableFlakes(BigInt(info.balance)),
-        accountIndex: 0,
-        addressIndex: parseInt(index, 10),
-      });
-      totalFlakes += BigInt(info.balance);
-    }
-
-    this.addressRows = addressRows;
-    this.totalBalance = humanReadableFlakes(totalFlakes);
-  }
-
-  private async onAddressAliased(alias: string): Promise<void> {
-    this.$store.dispatch(`${persisted}/addAddress`, {
-      index: this.nextAddressIndex,
-      accountIndex: USED_HYDRA_ACCOUNT,
-      alias,
-      balance: '0',
-      network: this.selectedNetwork,
-      deleted: false,
-    } as AddressInfo);
-    await this.refreshAddresses();
+    this.addressRows = buildRowsFromState(account, this.$store);
+    this.loadingAddresses = false;
   }
 }
 </script>

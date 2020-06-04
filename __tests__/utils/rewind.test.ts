@@ -1,11 +1,7 @@
-import {
-  humanReadableFlakes,
-  rewindNetworkToState,
-  NetworkAccess,
-  networkKindToNetworkInfo,
-} from '../src/utils';
-import { Fixture, walletBalance } from './utils.fixture';
-import { WalletNetworkKind } from '../src/types';
+import { rewindNetworkToState, NetworkAccess } from '../../src/utils/rewind';
+import { networkKindToNetworkInfo } from '../../src/utils/convert';
+import { Fixture, walletBalance } from './fixture';
+import { WalletNetworkKind } from '../../src/types';
 
 const buildNetworkAccess = (fixture: Fixture): NetworkAccess => ({
   networkKind: WalletNetworkKind.HydraTestnet,
@@ -14,27 +10,7 @@ const buildNetworkAccess = (fixture: Fixture): NetworkAccess => ({
   vault: null,
 });
 
-describe('humanReadableFlakes', () => {
-  it('one flake', () => {
-    expect(humanReadableFlakes(BigInt(1))).toBe('0.0000');
-  });
-
-  it('10k flakes', () => {
-    expect(humanReadableFlakes(BigInt(10000))).toBe('0.0001');
-  });
-
-  it('100M flakes', () => {
-    expect(humanReadableFlakes(BigInt(100000000))).toBe('1.0000');
-  });
-
-  it('Huge amount of flakes', () => {
-    expect(
-      humanReadableFlakes(BigInt('9999999999999999999999999999999999999')),
-    ).toBe('99,999,999,999,999,999,999,999,999,999.9999');
-  });
-});
-
-describe('rewindNetworkToState', () => {
+describe('rewind', () => {
   test('Rewinds from scratch', async () => {
     const fixture = new Fixture(new Map([
       ['addr1', walletBalance('100')],

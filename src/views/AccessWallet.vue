@@ -95,10 +95,7 @@ export default class AccessWallet extends Vue {
       walletHash,
       networkKind: defaultNetwork,
     } as InitWalletParams);
-    this.$store.dispatch(`${persisted}/setNetwork`, {
-      kind: defaultNetwork,
-      ticker: networkKindToTicker(defaultNetwork),
-    });
+    this.$store.dispatch(`${persisted}/setNetwork`, defaultNetwork);
 
     this.$bvModal.hide('ask-for-password-modal');
     this.loading = true;

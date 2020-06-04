@@ -32,6 +32,7 @@ export class Fixture {
       0: initialState ?? {},
     };
     this.persisedState.selectedNetwork = networkKindToNetworkInfo(networkKind);
+    this.persisedState.selectedAccountIndex = 0;
 
     this.accountKeyMap = new Map([
       [0, { address: 'addr1' }],

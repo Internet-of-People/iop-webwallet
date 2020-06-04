@@ -13,10 +13,7 @@
             />
           </b-col>
           <b-col md="12" lg="6" class="mt-0 mt-3 mt-lg-0">
-            <NetworkSelector
-              @onNetworkKindSelected="changeNetwork"
-              :selectedNetwork="selectedNetwork"
-            />
+            <NetworkSelector @onNetworkChanged="refreshAddresses" />
           </b-col>
         </b-row>
         <AddressList
@@ -24,7 +21,7 @@
           :rows="addressRows"
           @onRefreshClicked="refreshAddresses"
           @onAddClicked="onAddAddressClicked"
-          @onDataChanged="refreshAddresses"
+          @onDataChanged="rebuildAddressRows"
         />
       </b-col>
     </b-row>
@@ -47,7 +44,6 @@ import {
   networkKindToTicker,
   networkKindToSDKNetwork,
   rewindNetworkToState,
-  USED_HYDRA_ACCOUNT,
   DefaultNetworkAccessorFactory,
 } from '@/utils';
 import { sdk } from '@/sdk';
@@ -75,6 +71,7 @@ export default class Dashboard extends Vue {
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('nextAddressIndex', { namespace: persisted }) nextAddressIndex!: number;
+  @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
   aliasAddressModalVisible = false;
   loadingAddresses = true;
   addressRows: Array<AddressListRowInfo> = [];
@@ -96,7 +93,11 @@ export default class Dashboard extends Vue {
   }
 
   private async onAddAddressClicked(): Promise<void> {
-    const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
+    const account = await hydraAccount(
+      this.vault,
+      this.selectedNetwork.kind,
+      this.selectedAccountIndex,
+    );
     console.log(this.nextAddressIndex);
     this.nextAddress = (account.pub.key(this.nextAddressIndex)).address;
     this.aliasAddressModalVisible = true;
@@ -105,17 +106,12 @@ export default class Dashboard extends Vue {
   private async onAddressAliased(alias: string): Promise<void> {
     this.$store.dispatch(`${persisted}/addAddress`, {
       index: this.nextAddressIndex,
-      accountIndex: USED_HYDRA_ACCOUNT,
+      accountIndex: this.selectedAccountIndex,
       alias,
       balance: '0',
       network: this.selectedNetwork,
       deleted: false,
     } as AddressInfo);
-    await this.refreshAddresses();
-  }
-
-  private async changeNetwork(networkKind: WalletNetworkKind): Promise<void> {
-    this.$store.dispatch(`${persisted}/setNetwork`, networkKind);
     await this.refreshAddresses();
   }
 
@@ -131,9 +127,17 @@ export default class Dashboard extends Vue {
       this.$store,
     );
 
-    const account = await hydraAccount(this.vault, this.selectedNetwork.kind);
-    this.addressRows = buildRowsFromState(account, this.$store);
+    await this.rebuildAddressRows();
     this.loadingAddresses = false;
+  }
+
+  private async rebuildAddressRows(): Promise<void> {
+    const account = await hydraAccount(
+      this.vault,
+      this.selectedNetwork.kind,
+      this.selectedAccountIndex,
+    );
+    this.addressRows = buildRowsFromState(account, this.$store);
   }
 }
 </script>

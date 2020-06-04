@@ -1,17 +1,17 @@
 import { MutationTree } from 'vuex';
 import { AddressInfo, WalletNetworkKind } from '@/types';
 import { networkKindToNetworkInfo } from '@/utils/convert';
-import { PersistedState, InitWalletParams, RenameAddressParams } from './types';
+import { PersistedState, RenameAddressParams } from './types';
 
 const mutations: MutationTree<PersistedState> = {
-  INIT_WALLET: (state: PersistedState, value: InitWalletParams): void => {
-    state.selectedWalletHash = value.walletHash;
+  INIT_WALLET: (state: PersistedState, walletHash: string): void => {
+    state.selectedWalletHash = walletHash;
 
     const newVaultState = { ...state.vaultState };
-    if (!newVaultState[value.walletHash]) {
-      newVaultState[value.walletHash] = {};
+    if (!newVaultState[walletHash]) {
+      newVaultState[walletHash] = {};
       // TODO: we only handle the 1st account now
-      newVaultState[value.walletHash][value.networkKind] = { 0: {} };
+      newVaultState[walletHash][state.selectedNetwork.kind] = { 0: {} };
       state.vaultState = newVaultState;
     }
   },

@@ -6,7 +6,6 @@ import { WalletRootState } from '@/store/types';
 import { PersistedState } from '@/store/persisted/types';
 import { namespace as persisted } from '@/store/persisted';
 import { networkKindToSDKNetwork, networkKindToCoin, networkKindToNetworkInfo } from './convert';
-import { USED_HYDRA_ACCOUNT } from './consts';
 
 const REWIND_GAP = 5;
 
@@ -64,13 +63,14 @@ export const rewindNetworkToState = async (
       throw new Error(`Wallet cannot be revinded as it has not yet added: ${persistedState.selectedWalletHash}`);
     }
 
-    const addressInfo = walletState[persistedState.selectedNetwork!.kind][USED_HYDRA_ACCOUNT][
-      index
-    ];
+    const addressInfo = walletState
+      [persistedState.selectedNetwork.kind]
+      [persistedState.selectedAccountIndex]
+      [index];
 
     wallets.push({
       alias: addressInfo ? addressInfo.alias : `Address-${index}`,
-      accountIndex: USED_HYDRA_ACCOUNT,
+      accountIndex: persistedState.selectedAccountIndex,
       balance,
       index,
       network: networkKindToNetworkInfo(networkAccess.networkKind),

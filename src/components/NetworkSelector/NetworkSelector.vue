@@ -54,11 +54,13 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Getter } from 'vuex-class';
 import { WalletNetworkInfo, WalletNetworkKind } from '@/types';
+import { namespace as persisted } from '@/store/persisted';
 
 @Component
 export default class NetworkSelector extends Vue {
-  @Prop({ type: Object, required: true }) selectedNetwork!: WalletNetworkInfo;
+  @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
 
   data() {
     return {
@@ -76,7 +78,8 @@ export default class NetworkSelector extends Vue {
 
   selectNetwork(kind: WalletNetworkKind): void {
     this.$bvModal.hide('network-selector-modal');
-    this.$emit('onNetworkKindSelected', kind);
+    this.$store.dispatch(`${persisted}/setNetwork`, kind);
+    this.$emit('onNetworkChanged');
   }
 }
 </script>

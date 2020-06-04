@@ -2,7 +2,7 @@ import { Store } from 'vuex';
 import { WalletRootState } from '@/store/types';
 import { PersistedState } from '@/store/persisted/types';
 import { namespace as persisted } from '@/store/persisted';
-import { humanReadableFlakes, USED_HYDRA_ACCOUNT } from '@/utils';
+import { humanReadableFlakes } from '@/utils';
 import { AddressListRowInfo } from './types';
 
 export const buildRowsFromState = (
@@ -12,7 +12,7 @@ export const buildRowsFromState = (
   const persistedState: PersistedState = ((stateStore.state as any)[persisted] as PersistedState);
   const walletState = persistedState.vaultState[persistedState.selectedWalletHash!];
   const accountState = Object.entries(
-    walletState[persistedState.selectedNetwork!.kind][USED_HYDRA_ACCOUNT],
+    walletState[persistedState.selectedNetwork!.kind][persistedState.selectedAccountIndex],
   );
 
   let totalFlakes = 0n;

@@ -1,4 +1,6 @@
 import { Module } from 'vuex';
+import { WalletNetworkKind } from '@/types';
+import { networkKindToNetworkInfo } from '@/utils/convert';
 import { WalletRootState } from '../types';
 import { PersistedState } from './types';
 import getters from './getters';
@@ -9,8 +11,9 @@ const namespaced = true;
 export const namespace = 'persisted';
 
 export const state: PersistedState = {
-  selectedNetwork: null,
+  selectedNetwork: networkKindToNetworkInfo(WalletNetworkKind.HydraTestnet),
   selectedWalletHash: null,
+  selectedAccountIndex: 0,
   vaultState: {},
 };
 

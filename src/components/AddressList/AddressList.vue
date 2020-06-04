@@ -47,7 +47,7 @@
                     <fa icon="ellipsis-v" />
                   </template>
                   <b-dropdown-item
-                    @click="onSendButtonClick(`${info.accountIndex}.${info.addressIndex}`)"
+                    @click="onSendButtonClick(info.accountIndex, info.addressIndex)"
                   >
                     <fa :icon="['far', 'money-bill-alt']" class="mr-2" />
                     Send {{ ticker }}
@@ -194,12 +194,13 @@ export default class AddressList extends Vue {
     this.$emit('onAddClicked');
   }
 
-  private onSendButtonClick(path: string): void {
+  private onSendButtonClick(accountIndex: number, addressIndex: number): void {
     this.$router.push({
       name: 'Send',
       params: {
         ticker: this.selectedNetwork.ticker,
-        from: path,
+        accountIndex: accountIndex.toString(),
+        addressIndex: addressIndex.toString(),
       },
     });
   }

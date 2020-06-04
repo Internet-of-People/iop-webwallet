@@ -11,7 +11,7 @@ const buildNetworkAccess = (fixture: Fixture): NetworkAccess => ({
 });
 
 describe('rewind', () => {
-  test('Rewinds from scratch', async () => {
+  it('Rewinds from scratch', async () => {
     const fixture = new Fixture(new Map([
       ['addr1', walletBalance('100')],
       ['addr2', walletBalance('200')],
@@ -49,7 +49,7 @@ describe('rewind', () => {
     });
   });
 
-  test('Rewinds with GAP', async () => {
+  it('Rewinds with GAP', async () => {
     const fixture = new Fixture(new Map([
       ['addr1', walletBalance('100')],
       ['addr5', walletBalance('500')],
@@ -102,7 +102,7 @@ describe('rewind', () => {
     });
   });
 
-  test('Merges correctly with existing state', async () => {
+  it('Merges correctly with existing state', async () => {
     const fixture = new Fixture(new Map([
       ['addr1', walletBalance('100')],
       ['addr2', walletBalance('200')],

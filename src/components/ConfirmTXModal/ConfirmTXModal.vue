@@ -49,7 +49,7 @@
         <b-col>
           <h4>Broadcasting Your Transaction</h4>
           <b-spinner variant="primary" class="mb-3 mt-2" />
-          <b-progress :value="sendingSince" max="60" class="mb-3" animated></b-progress>
+          <b-progress :value="sendingSince" max="30" class="mb-3" animated></b-progress>
         </b-col>
       </b-row>
     </b-modal>
@@ -138,6 +138,7 @@ export default class Send extends Vue {
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
+  @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
   sendingTx = false;
@@ -151,10 +152,14 @@ export default class Send extends Vue {
     const vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
       askUnlockPassword: async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
     });
-    const account = await hydraAccount(vault, this.selectedNetwork.kind);
+    const account = await hydraAccount(
+      vault,
+      this.selectedNetwork.kind,
+      this.selectedAccountIndex,
+    );
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
     const { wif } = (await account.priv()).key(this.senderIndex!);
-    const amount = BigInt(this.amount) * BigInt(1e8);
+    const amount = BigInt(this.amount! * 1e8);
 
     try {
       this.txId = await api.sendTransferTxWithWIF(
@@ -189,12 +194,12 @@ export default class Send extends Vue {
         return;
       }
 
-      this.sendingSince += 2;
-      if (this.sendingSince >= 60) {
+      this.sendingSince += 3;
+      if (this.sendingSince >= 30) {
         this.$bvModal.hide('confirm-modal');
         this.$bvModal.show('fail-modal');
       }
-    }, 1000);
+    }, 3000);
   }
 }
 </script>

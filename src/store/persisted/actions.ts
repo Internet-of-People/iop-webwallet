@@ -1,11 +1,11 @@
 import { ActionTree } from 'vuex';
 import { AddressInfo, WalletNetworkKind } from '@/types';
-import { PersistedState, InitWalletParams, RenameAddressParams } from './types';
+import { PersistedState, RenameAddressParams } from './types';
 import { WalletRootState } from '../types';
 
 const actions: ActionTree<PersistedState, WalletRootState> = {
-  initWallet({ commit }, params: InitWalletParams): void {
-    commit('INIT_WALLET', params);
+  initWallet({ commit }, walletHash: string): void {
+    commit('INIT_WALLET', walletHash);
   },
   setNetwork({ commit }, networkKind: WalletNetworkKind): void {
     commit('SET_NETWORK', networkKind);

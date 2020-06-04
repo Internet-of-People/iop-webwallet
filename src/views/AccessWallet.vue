@@ -58,7 +58,6 @@ import { rewindNetworkToState, networkKindToTicker, DefaultNetworkAccessorFactor
 import { AskForPasswordModal } from '@/components/common';
 import { namespace as inmemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
-import { InitWalletParams } from '@/store/persisted/types';
 import { WalletNetworkInfo, WalletNetworkKind } from '@/types';
 
 @Component({
@@ -87,15 +86,10 @@ export default class AccessWallet extends Vue {
   }
 
   private async onPasswordProvided(password: string): Promise<void> {
-    const defaultNetwork = WalletNetworkKind.HydraTestnet;
     const walletHash = createHash('sha256').update(JSON.parse(this.serializedVault).encryptedSeed).digest('hex');
     this.$store.dispatch(`${inmemory}/setUnlockPassword`, password);
     this.$store.dispatch(`${inmemory}/setSerializedVault`, this.serializedVault);
-    this.$store.dispatch(`${persisted}/initWallet`, {
-      walletHash,
-      networkKind: defaultNetwork,
-    } as InitWalletParams);
-    this.$store.dispatch(`${persisted}/setNetwork`, defaultNetwork);
+    this.$store.dispatch(`${persisted}/initWallet`, walletHash);
 
     this.$bvModal.hide('ask-for-password-modal');
     this.loading = true;

@@ -9,8 +9,6 @@ import { networkKindToSDKNetwork, networkKindToCoin, networkKindToNetworkInfo } 
 
 const REWIND_GAP = 5;
 
-type UnlockPasswordCallback = (forDecrypt: boolean) => Promise<string>;
-
 export interface NetworkAccess {
   api: Types.Layer1.IApi;
   vault: any;
@@ -22,15 +20,15 @@ export class DefaultNetworkAccessorFactory {
   static async create(
     networkKind: WalletNetworkKind,
     serializedVault: string,
-    unlockPasswordCallback: UnlockPasswordCallback,
+    unlockPassword: string,
   ): Promise<NetworkAccess> {
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(networkKind));
-
-    const vault = await sdk.Crypto.XVault.load(JSON.parse(serializedVault), {
-      askUnlockPassword: unlockPasswordCallback,
+    const vault = sdk.Crypto.Vault.load(JSON.parse(serializedVault));
+    sdk.Crypto.HydraPlugin.rewind(vault, unlockPassword, {
+      network: networkKindToCoin(networkKind), account: 0,
     });
 
-    const account = await sdk.Crypto.hydra(
+    const account = sdk.Crypto.HydraPlugin.get(
       vault,
       { network: networkKindToCoin(networkKind), account: 0 },
     );

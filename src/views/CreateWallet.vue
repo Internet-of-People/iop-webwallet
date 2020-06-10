@@ -275,22 +275,19 @@ export default class CreateWallet extends Vue {
     this.$bvModal.show('password-modal');
   }
 
-  private async generateWallet(): Promise<void> {
+  private generateWallet(): void {
     const { phrase } = new sdk.Crypto.Bip39('en').generate();
-    const vault = await sdk.Crypto.XVault.create(phrase, '', {
-      save: async (state: any): Promise<void> => {
-        const fileName = `hyd-wallet-UTC-${new Date().toISOString().replace(/:/g, '_')}.json`;
-        const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        URL.revokeObjectURL(link.href);
-        this.$bvModal.show('success-modal');
-      },
-      askUnlockPassword: async (forDecrypt: boolean): Promise<string> => this.password,
-    });
-    await vault.save();
+    const vault = sdk.Crypto.Vault.create(phrase, '', this.password);
+    const state = vault.save();
+
+    const fileName = `hyd-wallet-UTC-${new Date().toISOString().replace(/:/g, '_')}.json`;
+    const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    this.$bvModal.show('success-modal');
   }
 }
 </script>

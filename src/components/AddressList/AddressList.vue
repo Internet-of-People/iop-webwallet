@@ -83,7 +83,7 @@
         </b-card>
       </b-col>
     </b-row>
-    <b-row v-if="rows.length ===0">
+    <b-row v-if="rows.length===0 && !loading">
       <b-alert show variant="info">
         No available address.
       </b-alert>

@@ -13,7 +13,11 @@
           label="Sender Address"
           label-for="senderIndex"
         >
-          <b-form-select v-model="senderIndex" :options="availableSenders" @input="onSenderChanged">
+          <b-form-select
+            v-model.number="senderIndex"
+            :options="availableSenders"
+            @input="onSenderChanged"
+          >
             <b-form-select-option :value="null">Please select an address</b-form-select-option>
           </b-form-select>
         </b-form-group>
@@ -77,9 +81,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
 import { sdk } from '@/sdk';
-import {
-  humanReadableFlakes, networkKindToCoin, hydraAccount,
-} from '@/utils';
+import { humanReadableFlakes, networkKindToCoin } from '@/utils';
 import { ConfirmTXModal } from '@/components';
 import { Menu } from '@/components/common';
 import { namespace as inMemory } from '@/store/inmemory';
@@ -98,7 +100,7 @@ interface SenderChoice {
 })
 export default class Send extends Vue {
   @Prop({ type: String, required: true }) ticker!: string;
-  @Prop({ type: String, required: true }) accountIndex!: string;
+  @Prop({ type: String, required: false }) accountIndex!: string;
   @Prop({ type: String, required: false }) addressIndex!: string;
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
@@ -107,6 +109,7 @@ export default class Send extends Vue {
   @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
   senderIndex: number | null = null;
+  senderAccountIndex: number | null = null;
   senderAddress: string | null = null;
   senderAddressInfo: AddressInfo | null = null;
   availableAmount: string | null = null;
@@ -140,18 +143,26 @@ export default class Send extends Vue {
   }
 
   async mounted(): Promise<void> {
-    const vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
-      askUnlockPassword: async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
-    });
-    this.account = await hydraAccount(vault, this.selectedNetwork.kind, this.selectedAccountIndex);
+    this.senderAccountIndex = this.accountIndex
+      ? parseInt(this.accountIndex, 10)
+      : this.selectedAccountIndex;
+    this.senderIndex = this.addressIndex ? parseInt(this.addressIndex, 10) : null;
+
+    const vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
+
+    const hydraParams = {
+      network: networkKindToCoin(this.selectedNetwork.kind),
+      account: this.senderAccountIndex,
+    };
+    sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
+    this.account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 
     await this.initAvailableSenders();
 
-    if (this.addressIndex) {
-      this.senderIndex = parseInt(this.addressIndex, 10);
+    if (this.senderIndex) {
       const walletState = this.vaultState[this.selectedWalletHash];
       const entries = Object.entries(
-        walletState[this.selectedNetwork.kind][parseInt(this.accountIndex, 10)],
+        walletState[this.selectedNetwork.kind][this.senderAccountIndex],
       );
 
       for (const [index, info] of entries) {
@@ -167,7 +178,7 @@ export default class Send extends Vue {
     const walletState = this.vaultState[this.selectedWalletHash];
     const senders: Array<SenderChoice> = [];
     const addresses = Object.entries(
-      walletState[this.selectedNetwork.kind][parseInt(this.accountIndex, 10)],
+      walletState[this.selectedNetwork.kind][this.senderAccountIndex!],
     );
 
     for (const [index, info] of addresses) {
@@ -198,7 +209,7 @@ export default class Send extends Vue {
     const walletState = this.vaultState[this.selectedWalletHash];
     const info = walletState
       [this.selectedNetwork.kind]
-      [parseInt(this.accountIndex, 10)]
+      [this.senderAccountIndex!]
       [this.senderIndex!];
 
     this.availableAmount = humanReadableFlakes(BigInt(info.balance));

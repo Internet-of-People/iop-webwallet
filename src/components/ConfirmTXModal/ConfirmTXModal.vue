@@ -121,7 +121,6 @@ import {
   networkKindToSDKNetwork,
   networkKindToCoin,
   networkKindToNetworkURL,
-  hydraAccount,
 } from '@/utils';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
@@ -149,16 +148,16 @@ export default class Send extends Vue {
   private async onConfirmSendClick(): Promise<void> {
     this.sendingTx = true;
 
-    const vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
-      askUnlockPassword: async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
-    });
-    const account = await hydraAccount(
-      vault,
-      this.selectedNetwork.kind,
-      this.selectedAccountIndex,
-    );
+    const vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
+    const hydraParams = {
+      network: networkKindToCoin(this.selectedNetwork.kind),
+      account: this.selectedAccountIndex,
+    };
+    sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
+    const account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
+
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
-    const { wif } = (await account.priv()).key(this.senderIndex!);
+    const { wif } = account.priv(this.unlockPassword).key(this.senderIndex!);
     const amount = BigInt(this.amount! * 1e8);
 
     try {

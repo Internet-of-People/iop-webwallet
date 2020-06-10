@@ -13,7 +13,7 @@
             />
           </b-col>
           <b-col md="12" lg="6" class="mt-0 mt-3 mt-lg-0">
-            <NetworkSelector @onNetworkChanged="refreshAddresses" />
+            <NetworkSelector @onNetworkChanged="networkChanged" />
           </b-col>
         </b-row>
         <AddressList
@@ -39,7 +39,6 @@ import {
 } from '@/types';
 import {
   humanReadableFlakes,
-  hydraAccount,
   networkKindToCoin,
   networkKindToTicker,
   networkKindToSDKNetwork,
@@ -76,6 +75,7 @@ export default class Dashboard extends Vue {
   loadingAddresses = true;
   addressRows: Array<AddressListRowInfo> = [];
   vault: any;
+  account: any;
   nextAddress = '';
 
   async mounted(): Promise<void> {
@@ -84,22 +84,15 @@ export default class Dashboard extends Vue {
       return;
     }
 
-    this.vault = await sdk.Crypto.XVault.load(JSON.parse(this.serializedVault), {
-      askUnlockPassword: async (forDecrypt: boolean): Promise<string> => this.unlockPassword,
-    });
+    this.vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
+    this.createAccount();
 
     await this.refreshAddresses();
     this.loadingAddresses = false;
   }
 
   private async onAddAddressClicked(): Promise<void> {
-    const account = await hydraAccount(
-      this.vault,
-      this.selectedNetwork.kind,
-      this.selectedAccountIndex,
-    );
-    console.log(this.nextAddressIndex);
-    this.nextAddress = (account.pub.key(this.nextAddressIndex)).address;
+    this.nextAddress = (this.account.pub.key(this.nextAddressIndex)).address;
     this.aliasAddressModalVisible = true;
   }
 
@@ -115,6 +108,22 @@ export default class Dashboard extends Vue {
     await this.refreshAddresses();
   }
 
+  private createAccount(): void {
+    const hydraParams = {
+      network: networkKindToCoin(this.selectedNetwork.kind),
+      account: this.selectedAccountIndex,
+    };
+
+    sdk.Crypto.HydraPlugin.rewind(this.vault, this.unlockPassword, hydraParams);
+    this.account = sdk.Crypto.HydraPlugin.get(this.vault, hydraParams);
+  }
+
+  private async networkChanged(): Promise<void> {
+    console.log(this.selectedNetwork.kind);
+    this.createAccount();
+    await this.refreshAddresses();
+  }
+
   private async refreshAddresses(): Promise<void> {
     this.loadingAddresses = true;
 
@@ -122,7 +131,7 @@ export default class Dashboard extends Vue {
       await DefaultNetworkAccessorFactory.create(
         this.selectedNetwork.kind,
         this.serializedVault,
-        async (_forDecrypt: boolean): Promise<string> => this.unlockPassword,
+        this.unlockPassword,
       ),
       this.$store,
     );
@@ -132,10 +141,12 @@ export default class Dashboard extends Vue {
   }
 
   private async rebuildAddressRows(): Promise<void> {
-    const account = await hydraAccount(
+    const account = sdk.Crypto.HydraPlugin.get(
       this.vault,
-      this.selectedNetwork.kind,
-      this.selectedAccountIndex,
+      {
+        network: networkKindToCoin(this.selectedNetwork.kind),
+        account: this.selectedAccountIndex,
+      },
     );
     this.addressRows = buildRowsFromState(account, this.$store);
   }

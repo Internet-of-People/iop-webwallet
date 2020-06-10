@@ -98,7 +98,7 @@ export default class AccessWallet extends Vue {
       await DefaultNetworkAccessorFactory.create(
         this.selectedNetwork.kind,
         this.serializedVault,
-        async (_forDecrypt: boolean): Promise<string> => password,
+        password,
       ),
       this.$store,
     );

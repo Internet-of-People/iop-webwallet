@@ -41,7 +41,9 @@ glob('dist/*.wasm', {}, (_, wasmFiles) => {
 
         if (result !== js) {
           fs.writeFile(jsFile, result, 'utf8', (writeErr) => {
-            throw new Error(writeErr);
+            if(writeErr){
+              throw new Error(writeErr);
+            }
           });
         }
       });

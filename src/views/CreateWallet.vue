@@ -211,7 +211,13 @@
         label="Your Password"
         label-for="password"
       >
-        <b-form-input id="password" v-model="password" :state="passwordState" trim></b-form-input>
+        <b-form-input
+          id="password"
+          type="password"
+          v-model="password"
+          :state="passwordState"
+          trim
+        />
         <b-form-invalid-feedback :state="passwordState">
           Please enter at least 9 characters.
         </b-form-invalid-feedback>

@@ -24,6 +24,15 @@ export class DefaultNetworkAccessorFactory {
   ): Promise<NetworkAccess> {
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(networkKind));
     const vault = sdk.Crypto.Vault.load(JSON.parse(serializedVault));
+
+    try {
+      sdk.Crypto.HydraPlugin.rewind(vault, unlockPassword, {
+        network: networkKindToCoin(networkKind), account: 0,
+      });
+    } catch (e) {
+      throw new Error(`Failed to access wallet: ${e}`);
+    }
+
     sdk.Crypto.HydraPlugin.rewind(vault, unlockPassword, {
       network: networkKindToCoin(networkKind), account: 0,
     });

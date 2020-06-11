@@ -10,9 +10,7 @@
     "move-wasm": "node wasm_path_fixer.js"
   },
   "dependencies": {
-    "@internet-of-people/morpheus-crypto-wasm": "file:../morpheus-ts/packages/morpheus-crypto-wasm",
-    "@internet-of-people/morpheus-crypto": "file:../morpheus-ts/packages/morpheus-crypto",
-    "@internet-of-people/sdk": "file:../morpheus-ts/packages/sdk",
+    "@internet-of-people/sdk": "3.0.0",
     "@fortawesome/fontawesome-svg-core": "1.2.19",
     "@fortawesome/free-brands-svg-icons": "5.9.0",
     "@fortawesome/free-regular-svg-icons": "5.9.0",

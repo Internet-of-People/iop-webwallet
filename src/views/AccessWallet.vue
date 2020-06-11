@@ -48,6 +48,23 @@
       </b-col>
     </b-row>
     <AskForPasswordModal @onPasswordProvided="onPasswordProvided" />
+
+    <b-modal id="error-modal" hide-header hide-footer>
+      <h4 class="text-center">Whooops</h4>
+
+      <b-alert show variant="danger">
+        {{ errorMessage }}
+      </b-alert>
+
+      <b-button
+        size="lg"
+        variant="primary"
+        class="mx-auto my-4 d-block"
+        @click="onOkInErrorModalClick"
+      >
+        Let'me try again
+      </b-button>
+    </b-modal>
   </b-container>
 </template>
 <script lang="ts">
@@ -69,6 +86,7 @@ export default class AccessWallet extends Vue {
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   loading = false;
   serializedVault = '';
+  errorMessage = '';
 
   keystoreFileSelected(event: Event): void {
     const element = event.target as HTMLInputElement;
@@ -86,24 +104,35 @@ export default class AccessWallet extends Vue {
   }
 
   private async onPasswordProvided(password: string): Promise<void> {
-    const walletHash = createHash('sha256').update(JSON.parse(this.serializedVault).encryptedSeed).digest('hex');
-    this.$store.dispatch(`${inmemory}/setUnlockPassword`, password);
-    this.$store.dispatch(`${inmemory}/setSerializedVault`, this.serializedVault);
-    this.$store.dispatch(`${persisted}/initWallet`, walletHash);
-
-    this.$bvModal.hide('ask-for-password-modal');
-    this.loading = true;
-
-    await rewindNetworkToState(
-      await DefaultNetworkAccessorFactory.create(
+    try {
+      const networkAccessor = await DefaultNetworkAccessorFactory.create(
         this.selectedNetwork.kind,
         this.serializedVault,
         password,
-      ),
-      this.$store,
-    );
+      );
 
-    this.$router.push({ name: 'Dashboard' });
+      const walletHash = createHash('sha256').update(JSON.parse(this.serializedVault).encryptedSeed).digest('hex');
+      this.$store.dispatch(`${inmemory}/setUnlockPassword`, password);
+      this.$store.dispatch(`${inmemory}/setSerializedVault`, this.serializedVault);
+      this.$store.dispatch(`${persisted}/initWallet`, walletHash);
+
+      this.$bvModal.hide('ask-for-password-modal');
+      this.loading = true;
+
+      await rewindNetworkToState(
+        networkAccessor,
+        this.$store,
+      );
+
+      this.$router.push({ name: 'Dashboard' });
+    } catch (e) {
+      this.errorMessage = e;
+      this.$bvModal.show('error-modal');
+    }
+  }
+
+  private onOkInErrorModalClick(): void {
+    this.$bvModal.hide('error-modal');
   }
 }
 </script>

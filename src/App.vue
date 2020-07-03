@@ -13,7 +13,7 @@
       </div>
       <div class="footer mt-5">
         Copyright &copy;&nbsp; {{ new Date().getFullYear() }}
-        <a href="https://iop.global/dsf" target="_blank">Decentralized Society Foundation, PA</a>
+        <a href="https://iop.global/iop-ventures/" target="_blank">IOP Ventures LLC</a>
       </div>
     </div>
   </div>

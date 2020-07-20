@@ -6,7 +6,7 @@ export const humanReadableFlakes = (flakes: BigInt): string => new BigNumber(fla
   .dividedBy(1e8)
   .toFormat(4, BigNumber.ROUND_FLOOR);
 
-export const networkKindToCoin = (networkKind: WalletNetworkKind): any => {
+export const networkKindToCoin = (networkKind: WalletNetworkKind): string => {
   switch (networkKind) {
     case WalletNetworkKind.HydraTestnet:
       return sdk.Crypto.Coin.Hydra.Testnet;

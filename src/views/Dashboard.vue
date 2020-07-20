@@ -109,11 +109,10 @@ export default class Dashboard extends Vue {
   }
 
   private createAccount(): void {
-    const hydraParams = {
-      network: networkKindToCoin(this.selectedNetwork.kind),
-      account: this.selectedAccountIndex,
-    };
-
+    const hydraParams = new sdk.Crypto.HydraParameters(
+      networkKindToCoin(this.selectedNetwork.kind),
+      this.selectedAccountIndex,
+    );
     sdk.Crypto.HydraPlugin.rewind(this.vault, this.unlockPassword, hydraParams);
     this.account = sdk.Crypto.HydraPlugin.get(this.vault, hydraParams);
   }
@@ -143,10 +142,10 @@ export default class Dashboard extends Vue {
   private async rebuildAddressRows(): Promise<void> {
     const account = sdk.Crypto.HydraPlugin.get(
       this.vault,
-      {
-        network: networkKindToCoin(this.selectedNetwork.kind),
-        account: this.selectedAccountIndex,
-      },
+      new sdk.Crypto.HydraParameters(
+        networkKindToCoin(this.selectedNetwork.kind),
+        this.selectedAccountIndex,
+      ),
     );
     this.addressRows = buildRowsFromState(account, this.$store);
   }

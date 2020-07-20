@@ -149,10 +149,10 @@ export default class Send extends Vue {
     this.sendingTx = true;
 
     const vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
-    const hydraParams = {
-      network: networkKindToCoin(this.selectedNetwork.kind),
-      account: this.selectedAccountIndex,
-    };
+    const hydraParams = new sdk.Crypto.HydraParameters(
+      networkKindToCoin(this.selectedNetwork.kind),
+      this.selectedAccountIndex,
+    );
     sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
     const account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 

@@ -25,7 +25,7 @@ $ npm run build
 ### Run your unit tests
 
 ```bash
-$ npm run test:unit
+$ npm run test
 ```
 
 ### Lints and fixes files

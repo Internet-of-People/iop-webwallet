@@ -3,6 +3,7 @@ import CreateWallet from './CreateWallet.vue';
 import Dashboard from './Dashboard.vue';
 import Home from './Home.vue';
 import Send from './Send.vue';
+import ViewAddress from './ViewAddress.vue';
 
 export {
   AccessWallet,
@@ -10,4 +11,5 @@ export {
   Dashboard,
   Home,
   Send,
+  ViewAddress,
 };

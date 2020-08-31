@@ -5,7 +5,7 @@
         <b-row no-gutters>
           <b-col cols="2"><fa class="card-icon mt-0" icon="wallet" /></b-col>
           <b-col cols="8" class="pl-3">
-            <b-card-title>Balance</b-card-title>
+            <b-card-title>Total Balance</b-card-title>
             <b-card-text>
               <h5 v-if="loading">Loading...</h5>
               <p v-else class="mb-0">{{ balance }} {{ ticker }}</p>

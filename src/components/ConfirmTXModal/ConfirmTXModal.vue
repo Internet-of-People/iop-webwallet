@@ -1,7 +1,8 @@
 <template>
   <div>
     <b-modal
-      id="confirm-modal"
+      :visible="params !== null"
+      v-if="params"
       no-close-on-esc
       hide-header-close
       no-close-on-backdrop
@@ -11,37 +12,51 @@
       <b-list-group v-if="!sendingTx">
         <b-list-group-item class="flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1" v-if="senderAddressInfo">{{ senderAddressInfo.alias }}</h5>
+            <h5 class="mb-1" v-if="params.senderAddressAlias">{{ params.senderAddressAlias }}</h5>
             <small class="text-muted">
-              Available: {{ availableAmount }}{{ selectedNetwork.ticker }}
+              Available: {{ params.senderAvailableAmount }}{{ selectedNetwork.ticker }}
             </small>
           </div>
-          <small class="text-muted">{{ senderAddress }}</small>
+          <small class="text-muted">{{ params.senderAddress }}</small>
         </b-list-group-item>
 
         <b-list-group-item class="flex-column align-items-start">
           <div class="text-center">
             <h3 class="my-4">
-              <fa icon="arrow-down" />
-              {{ amount }} {{ selectedNetwork.ticker }}
-              <fa icon="arrow-down" />
+              <template v-if="params.txType === TxType.TRANSFER">
+                <fa icon="arrow-down" />
+                {{ humanAmount }} {{ selectedNetwork.ticker }}
+                <fa icon="arrow-down" />
+              </template>
+              <template v-if="params.txType === TxType.VOTE">
+                VOTE ON<br>
+                {{ params.target }}
+              </template>
+              <template v-if="params.txType === TxType.UNVOTE">
+                UNVOTE<br>
+                {{ params.target }}
+              </template>
             </h3>
           </div>
         </b-list-group-item>
-
-        <b-list-group-item class="flex-column align-items-start">
+        <b-list-group-item
+          class="flex-column align-items-start"
+          v-if="params.txType === TxType.TRANSFER"
+        >
           <div class="text-center">
-            <h5 class="mb-1">{{ recipient }}</h5>
+            <h5 class="mb-1">{{ params.target }}</h5>
           </div>
         </b-list-group-item>
       </b-list-group>
       <b-row no-gutters v-if="!sendingTx">
         <b-col class="text-center my-4">
-          <b-button variant="outline-primary mr-3" @click="$bvModal.hide('confirm-modal')">
-            BACK
+          <b-button variant="outline-primary mr-3" @click="() => this.$emit('update:params', null)">
+            CANCEL
           </b-button>
           <b-button variant="primary" @click="onConfirmSendClick">
-            SEND {{ amount }} {{ selectedNetwork.ticker }}
+            SEND {{ humanAmount }} {{ selectedNetwork.ticker }}
+            <template v-if="params.txType === TxType.VOTE">(VOTE)</template>
+            <template v-if="params.txType === TxType.UNVOTE">(UNVOTE)</template>
           </b-button>
         </b-col>
       </b-row>
@@ -54,7 +69,7 @@
       </b-row>
     </b-modal>
     <b-modal
-      id="success-modal"
+      :visible="successVisible"
       no-close-on-esc
       hide-header-close
       no-close-on-backdrop
@@ -63,9 +78,15 @@
     >
       <h4 class="text-center mt-4">Success!</h4>
       <fa class="success-icon mx-auto d-block my-4" icon="glass-cheers" />
-      <p class="text-center">
-        <strong>{{ amount }} {{ selectedNetwork.ticker }}</strong>
-        has been sent to {{ recipient }}
+      <p class="text-center" v-if="sentTxType === TxType.TRANSFER">
+        <strong>{{ sentAmount }} {{ selectedNetwork.ticker }}</strong>
+        has been sent to {{ sentToTarget }}
+      </p>
+      <p class="text-center" v-if="sentTxType === TxType.VOTE">
+        You've been voted on <strong>{{ sentToTarget }}</strong>
+      </p>
+      <p class="text-center" v-if="sentTxType === TxType.UNVOTE">
+        You've been unvoted <strong>{{ sentToTarget }}</strong>
       </p>
       <p class="text-center">
         <strong>Transaction ID:</strong><br>
@@ -74,8 +95,10 @@
 
       <b-row class="mt-4">
         <b-col sm="12" md="6" class="text-center mb-3 mb-md-0">
-          <b-button variant="outline-success" block @click="onBackToDasboardClick">
-            BACK TO DASHBOARD
+          <b-button variant="outline-success" block @click="onDoneInSuccessModalClick">
+            <template v-if="sentTxType === TxType.TRANSFER">BACK TO DASHBOARD</template>
+            <template v-if="sentTxType === TxType.VOTE">CLOSE</template>
+            <template v-if="sentTxType === TxType.UNVOTE">CLOSE</template>
           </b-button>
         </b-col>
         <b-col sm="12" md="6" class="text-center">
@@ -87,7 +110,7 @@
     </b-modal>
 
     <b-modal
-      id="fail-modal"
+      :visible="failVisible"
       no-close-on-esc
       hide-header-close
       no-close-on-backdrop
@@ -105,7 +128,7 @@
 
       <b-row class="mt-4">
         <b-col cols="12" class="text-center mb-3 mb-md-0">
-          <b-button variant="outline-primary" @click="$bvModal.hide('fail-modal')">
+          <b-button variant="outline-primary" @click="() => this.failVisible = false">
             CLOSE
           </b-button>
         </b-col>
@@ -116,34 +139,42 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
-import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
+import { WalletNetworkInfo } from '@/types';
 import {
   networkKindToSDKNetwork,
   networkKindToCoin,
   networkKindToNetworkURL,
+  humanReadableFlakes,
 } from '@/utils';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { sdk } from '@/sdk';
+import { TxType, IConfirmTxModalParams } from './type';
 
 @Component
 export default class Send extends Vue {
-  @Prop({ type: Object, required: false }) senderAddressInfo!: AddressInfo | null;
-  @Prop({ type: String, required: false }) availableAmount!: string | null;
-  @Prop({ type: String, required: false }) senderAddress!: string | null;
-  @Prop({ type: Number, required: false }) senderIndex!: number | null;
-  @Prop({ type: Number, required: false }) amount!: number | null;
-  @Prop({ type: String, required: false }) recipient!: string | null;
+  @Prop({ type: Object, required: false }) params!: IConfirmTxModalParams;
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
-  @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
   @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
-  @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
-  sendingTx = false;
-  sendingSince = 0;
-  txId = '';
-  txError = '';
+  private sendingTx = false;
+  private sendingSince = 0;
+  private txId = '';
+  private txError = '';
+  private successVisible = false;
+  private failVisible = false;
+  private sentTxType: TxType | null = null;
+  private sentToTarget = '';
+  private sentAmount = '';
+
+  get TxType(): typeof TxType {
+    return TxType;
+  }
+
+  get humanAmount(): string {
+    return humanReadableFlakes(this.params.flakesToSend);
+  }
 
   private async onConfirmSendClick(): Promise<void> {
     this.sendingTx = true;
@@ -157,25 +188,50 @@ export default class Send extends Vue {
     const account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
-    const { wif } = account.priv(this.unlockPassword).key(this.senderIndex!);
-    const amount = BigInt(this.amount! * 1e8);
+    const { wif } = account.priv(this.unlockPassword).key(this.params.senderAddressIndex!);
+    const amount = BigInt(this.params.flakesToSend);
 
     try {
-      this.txId = await api.sendTransferTxWithWIF(
-        wif,
-        this.recipient!,
-        amount,
-      );
+      if (this.params.txType === TxType.TRANSFER) {
+        this.txId = await api.sendTransferTxWithWIF(
+          wif,
+          this.params.target!,
+          amount,
+        );
+      } else if (this.params.txType === TxType.VOTE) {
+        // TODO
+        this.sentTxType = this.params.txType;
+        this.$emit('onTxCompleted', true, TxType.VOTE); // TODO
+        this.$emit('update:params', null); // TODO
+        this.successVisible = true; // TODO
+        this.sendingTx = false; // TODO
+        return; // TODO
+      } else if (this.params.txType === TxType.UNVOTE) {
+        // TODO
+        this.sentTxType = this.params.txType;
+        this.$emit('onTxCompleted', true, TxType.UNVOTE); // TODO
+        this.$emit('update:params', null); // TODO
+        this.successVisible = true; // TODO
+        this.sendingTx = false; // TODO
+        return; // TODO
+      } else {
+        throw new Error(`Invalid txType provided: ${this.params.txType}`);
+      }
+
       await this.watchForTxSuccess(api);
     } catch (e) {
       this.txError = e.message;
-      this.$bvModal.hide('confirm-modal');
-      this.$bvModal.show('fail-modal');
+      this.$emit('update:params', null);
+      this.failVisible = true;
     }
   }
 
-  private onBackToDasboardClick(): void {
-    this.$router.push({ name: 'Dashboard' });
+  private onDoneInSuccessModalClick(): void {
+    if (this.sentTxType === TxType.TRANSFER) {
+      this.$router.push({ name: 'Dashboard' });
+    } else if (this.sentTxType === TxType.VOTE || this.sentTxType === TxType.UNVOTE) {
+      this.successVisible = false;
+    }
   }
 
   private onOpenExplorerClick(): void {
@@ -188,15 +244,21 @@ export default class Send extends Vue {
     const interval = setInterval(async () => {
       if ((await api.getTxnStatus(this.txId)).isPresent()) {
         clearInterval(interval);
-        this.$bvModal.hide('confirm-modal');
-        this.$bvModal.show('success-modal');
+        this.sentTxType = this.params.txType;
+        this.sentToTarget = this.params.target;
+        this.sentAmount = this.humanAmount;
+        this.$emit('update:params', null);
+        this.successVisible = true;
+        this.$emit('onTxCompleted', true, this.sentTxType);
         return;
       }
 
       this.sendingSince += 3;
       if (this.sendingSince >= 30) {
-        this.$bvModal.hide('confirm-modal');
-        this.$bvModal.show('fail-modal');
+        clearInterval(interval);
+        this.$emit('update:params', null);
+        this.failVisible = true;
+        this.$emit('onTxCompleted', false, this.sentTxType);
       }
     }, 3000);
   }

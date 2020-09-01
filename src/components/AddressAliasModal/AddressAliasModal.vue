@@ -38,7 +38,7 @@ export default class AddressAliasModal extends Vue {
   @Prop({ type: Boolean, required: true }) visible = false;
   @Prop({ type: String, required: false }) address!: string;
   @Prop({ type: String, required: false }) alias!: string;
-  value = '';
+  private value = '';
 
   get aliasState(): boolean | null {
     if (this.value === '') {

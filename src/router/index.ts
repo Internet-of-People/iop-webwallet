@@ -33,18 +33,18 @@ const routes: Array<RouteConfig> = [
     component: Dashboard,
   },
   {
-    path: '/send/:ticker/:accountIndex/:addressIndex?',
+    path: '/send/:addressIndex',
     name: 'Send',
     component: Send,
-    props: true,
+    props: (route: Route): any => ({
+      addressIndex: Number(route.params.addressIndex),
+    }),
   },
   {
-    path: '/view/:ticker/:accountIndex/:addressIndex?',
+    path: '/view/:addressIndex',
     name: 'ViewAddress',
     component: ViewAddress,
     props: (route: Route): any => ({
-      ticker: route.params.ticker,
-      accountIndex: Number(route.params.accountIndex),
       addressIndex: Number(route.params.addressIndex),
     }),
   },

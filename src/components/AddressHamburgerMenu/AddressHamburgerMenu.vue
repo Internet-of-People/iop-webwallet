@@ -4,6 +4,11 @@
       <template v-slot:button-content>
         <fa icon="ellipsis-v" />
       </template>
+      <b-dropdown-item @click="onSendClick">
+        <fa :icon="['far', 'money-bill-alt']" class="mr-2" />
+        Send
+      </b-dropdown-item>
+      <b-dropdown-divider></b-dropdown-divider>
       <b-dropdown-item @click="onRenameClick">
         <fa :icon="['far', 'edit']" class="mr-2" />
         Rename
@@ -77,7 +82,7 @@ export default class AddressHamburgerMenu extends Vue {
   @Prop({ type: String, required: true }) addressAlias!: string;
   @Prop({ type: String, required: true }) address!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
-  aliasAddressModalVisible = false;
+  private aliasAddressModalVisible = false;
 
   private onDeleteAddressClick(): void {
     this.$bvModal.show('delete-address-modal');
@@ -96,6 +101,16 @@ export default class AddressHamburgerMenu extends Vue {
 
   private onRenameClick(): void {
     this.aliasAddressModalVisible = true;
+  }
+
+  private onSendClick(): void {
+    this.$router.push({
+      name: 'Send',
+      params: {
+        ticker: this.selectedNetwork.ticker,
+        addressIndex: this.addressIndex.toString(),
+      },
+    });
   }
 
   private onAddressAliased(alias: string): void {

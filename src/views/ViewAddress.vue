@@ -13,7 +13,7 @@
           <b-col md="3">
             <h3 class="text-primary mb-0">{{ addressAlias }}</h3>
             {{ address }}<br>
-            <h5 class="mt-3">98 THYD</h5>
+            <h5 class="mt-3">{{ balance }} {{ selectedNetwork.ticker }}</h5>
           </b-col>
           <b-col md="9" class="text-right">
             <b-button
@@ -43,39 +43,13 @@
               <b-card-text>TBD</b-card-text>
             </b-tab>
             <b-tab title="Vote" active class="m-0 p-0">
-              <b-alert show variant="warning" class="mt-3 mx-3">
-                You're currently not voting.
-              </b-alert>
-              <b-alert show variant="info" class="mt-3 mx-3">
-                <b-row no-gutters>
-                  <b-col>You're voting on <strong>genesis_47</strong></b-col>
-                  <b-col class="text-right">
-                    <b-button
-                      size="sm"
-                      variant="primary"
-                    >
-                      Unvote
-                    </b-button>
-                  </b-col>
-                </b-row>
-              </b-alert>
-              <b-table
-                sticky-header="400px"
-                fixed
-                :items="delegates"
-                :fields="delegatesTableFields"
-                :busy="loadingDelegates"
-                class="mt-3"
-              >
-                <template v-slot:table-busy>
-                  <div class="text-center my-2">
-                    <b-spinner variant="primary" class="align-middle"></b-spinner>
-                  </div>
-                </template>
-                <template v-slot:cell(actions)="">
-                  <b-button variant="outline-primary" size="sm">Vote</b-button>
-                </template>
-              </b-table>
+              <DelegatesList
+                :votingOnPubKey="votingOnPubKey"
+                :addressIndex="addressIndex"
+                :address="address"
+                @onVote="(publicKey) => {this.votingOnPubKey = publicKey}"
+                @onUnVote="() => {this.votingOnPubKey = ''}"
+              />
             </b-tab>
           </b-tabs>
         </b-card>
@@ -86,89 +60,45 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
-import axios from 'axios';
 import { sdk } from '@/sdk';
-import { AddressHamburgerMenu } from '@/components';
+import { AddressHamburgerMenu, DelegatesList } from '@/components';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { VaultState, WalletNetworkInfo } from '@/types';
-import { networkKindToCoin, networkKindToSDKNetwork } from '@/utils';
+import { networkKindToCoin, humanReadableFlakes, getApi } from '@/utils';
 
 interface Delegate {
   username: string;
-  address: string;
   publicKey: string;
-  voters: string;
   rank: number;
 }
 
 @Component({
   components: {
     AddressHamburgerMenu,
+    DelegatesList,
   },
 })
 export default class ViewAddress extends Vue {
-  @Prop({ type: String, required: true }) ticker!: string;
-  @Prop({ type: Number, required: true }) accountIndex!: number;
   @Prop({ type: Number, required: true }) addressIndex!: number;
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
+  @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
-  delegates: Array<Delegate> = [];
-  loadingDelegates = true;
-
-  get address(): string {
-    const walletState = this.vaultState[this.selectedWalletHash];
-    const addresses = Object.entries(
-      walletState[this.selectedNetwork.kind][this.accountIndex!],
-    );
-
-    const vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
-
-    const hydraParams = new sdk.Crypto.HydraParameters(
-      networkKindToCoin(this.selectedNetwork.kind),
-      this.accountIndex,
-    );
-    sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
-    const account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
-
-    for (const [index, info] of addresses) {
-      if (parseInt(index, 10) === this.addressIndex) {
-        const { address } = account.pub.key(parseInt(index, 10));
-        return address;
-      }
-    }
-
-    return '?';
-  }
+  private loading = true;
+  private address = '';
+  private balance = '';
+  private votingOnPubKey = '';
 
   get addressAlias(): string {
-    const walletState = this.vaultState[this.selectedWalletHash];
-    const addresses = Object.entries(
-      walletState[this.selectedNetwork.kind][this.accountIndex!],
-    );
-
-    for (const [index, info] of addresses) {
-      if (parseInt(index, 10) === this.addressIndex) {
-        return info.alias;
-      }
-    }
-
-    return '?';
-  }
-
-  get delegatesTableFields(): Array<any> {
-    return [
-      {
-        key: 'rank', label: 'Rank', thClass: 'delegatesRankCol', tdClass: 'text-center',
-      },
-      { key: 'username', label: 'Username', thClass: 'delegatesUsernameCol' },
-      {
-        key: 'actions', label: 'Actions', thClass: 'delegatesActionsCol', tdClass: 'text-right',
-      },
-    ];
+    return this.vaultState
+      [this.selectedWalletHash]
+      [this.selectedNetwork.kind]
+      [this.selectedAccountIndex]
+      [this.addressIndex]
+      .alias;
   }
 
   private async beforeMount(): Promise<void> {
@@ -177,23 +107,26 @@ export default class ViewAddress extends Vue {
       return;
     }
 
-    const api = axios.create({
-      baseURL: `${sdk.schemaAndHost(networkKindToSDKNetwork(this.selectedNetwork.kind))}:4705/`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
 
+    const hydraParams = new sdk.Crypto.HydraParameters(
+      networkKindToCoin(this.selectedNetwork.kind),
+      this.selectedAccountIndex,
+    );
+    sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
+    const hydraAccount = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 
-    const resp = await api('/api/delegates?page=1&limit=53&orderBy=rank%3Aasc', { validateStatus: () => true });
+    this.address = (hydraAccount.pub.key(this.addressIndex)).address;
+    const api = getApi(this.selectedNetwork.kind);
+
+    const resp = await api.get(`/api/wallets/${this.address}`, { validateStatus: () => true });
+
     if (resp.status === 200) {
-      this.delegates = resp.data.data.map((d: any): any => ({
-        rank: d.rank,
-        username: d.username,
-      }));
+      this.balance = humanReadableFlakes(BigInt(resp.data.data.balance));
+      this.votingOnPubKey = resp.data.data.vote ? resp.data.data.vote : '';
     }
 
-    this.loadingDelegates = false;
+    this.loading = false;
   }
 }
 </script>

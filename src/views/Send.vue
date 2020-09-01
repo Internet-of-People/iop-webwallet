@@ -1,30 +1,24 @@
 <template>
-  <b-container fluid class="mt-4">
+  <b-container class="mt-4">
     <b-row>
       <b-col md="3">
         <Menu />
       </b-col>
       <b-col md="9">
         <div class="my-5 text-center">
-          <h3>Sending {{ ticker }}</h3>
+          <h3>Sending {{ selectedNetwork.ticker }}</h3>
         </div>
         <b-form-group
-          id="senderIndex"
-          label="Sender Address"
-          label-for="senderIndex"
+          label="Sender"
+          v-if="senderAddressInfo"
         >
-          <b-form-select
-            v-model.number="senderIndex"
-            :options="availableSenders"
-            @input="onSenderChanged"
-          >
-            <b-form-select-option :value="null">Please select an address</b-form-select-option>
-          </b-form-select>
+          {{ senderAddressInfo.alias }}<br>
+        <small>{{ senderAddress }}</small>
         </b-form-group>
         <h5 class="text-center" v-if="availableAmount">
           <strong>{{ availableAmount }}</strong> {{ selectedNetwork.ticker }} available to send
         </h5>
-        <div v-if="senderIndex!==null">
+        <div v-if="addressIndex!==null">
           <b-form-group
             id="recipient"
             label="Recipient Address"
@@ -66,14 +60,7 @@
         </div>
       </b-col>
     </b-row>
-    <ConfirmTXModal
-      :senderAddressInfo="senderAddressInfo"
-      :availableAmount="availableAmount"
-      :senderAddress="senderAddress"
-      :amount="amount"
-      :recipient="recipient"
-      :senderIndex="senderIndex"
-    />
+    <ConfirmTXModal :params.sync="confirmTxParams" />
   </b-container>
 </template>
 <script lang="ts">
@@ -86,11 +73,8 @@ import { ConfirmTXModal } from '@/components';
 import { Menu } from '@/components/common';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
-
-interface SenderChoice {
-  value: string;
-  text: string;
-}
+import { TxType } from '@/components/ConfirmTXModal';
+import { IConfirmTxModalParams } from '@/components/ConfirmTXModal/type';
 
 @Component({
   components: {
@@ -99,24 +83,20 @@ interface SenderChoice {
   },
 })
 export default class Send extends Vue {
-  @Prop({ type: String, required: true }) ticker!: string;
-  @Prop({ type: String, required: false }) accountIndex!: string;
-  @Prop({ type: String, required: false }) addressIndex!: string;
+  @Prop({ type: Number, required: true }) addressIndex!: number;
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
   @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
   @Getter('vaultState', { namespace: persisted }) vaultState!: VaultState;
-  senderIndex: number | null = null;
-  senderAccountIndex: number | null = null;
-  senderAddress: string | null = null;
-  senderAddressInfo: AddressInfo | null = null;
-  availableAmount: string | null = null;
-  amount: number | null = null;
-  recipient: string | null = null;
-  availableSenders: Array<SenderChoice> = [];
-  account!: any;
+  private hydraAccount!: any;
+  private senderAddressInfo: AddressInfo | null = null;
+  private senderAddress: string | null = null;
+  private availableAmount: string | null = null;
+  private amount: number | null = null;
+  private recipient: string | null = null;
+  private confirmTxParams: IConfirmTxModalParams | null = null;
 
   get amountState(): boolean | null {
     if (!this.amount || this.amount === 0) {
@@ -129,6 +109,10 @@ export default class Send extends Vue {
     return this.amount >= 0.01 && senderBalance > available;
   }
 
+  get TxType(): typeof TxType {
+    return TxType;
+  }
+
   get recipientState(): boolean | null {
     if (this.recipient === null) {
       return null;
@@ -136,85 +120,41 @@ export default class Send extends Vue {
     return !!this.recipient;
   }
 
-  async beforeMount(): Promise<void> {
+  private async beforeMount(): Promise<void> {
     if (!this.serializedVault) {
       this.$router.push({ name: 'Home' });
     }
   }
 
-  async mounted(): Promise<void> {
-    this.senderAccountIndex = this.accountIndex
-      ? parseInt(this.accountIndex, 10)
-      : this.selectedAccountIndex;
-    this.senderIndex = this.addressIndex ? parseInt(this.addressIndex, 10) : null;
-
+  private mounted(): void {
     const vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
 
     const hydraParams = new sdk.Crypto.HydraParameters(
       networkKindToCoin(this.selectedNetwork.kind),
-      this.senderAccountIndex,
+      this.selectedAccountIndex,
     );
     sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
-    this.account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
+    this.hydraAccount = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 
-    await this.initAvailableSenders();
-
-    if (this.senderIndex) {
-      const walletState = this.vaultState[this.selectedWalletHash];
-      const entries = Object.entries(
-        walletState[this.selectedNetwork.kind][this.senderAccountIndex],
-      );
-
-      for (const [index, info] of entries) {
-        if (parseInt(index, 10) === this.senderIndex) {
-          this.senderAddressInfo = info;
-          this.onSenderChanged();
-        }
-      }
-    }
-  }
-
-  private async initAvailableSenders(): Promise<void> {
     const walletState = this.vaultState[this.selectedWalletHash];
-    const senders: Array<SenderChoice> = [];
-    const addresses = Object.entries(
-      walletState[this.selectedNetwork.kind][this.senderAccountIndex!],
-    );
-
-    for (const [index, info] of addresses) {
-      if (info.deleted) {
-        continue;
-      }
-      const { address } = this.account.pub.key(parseInt(index, 10));
-      const balance = `${humanReadableFlakes(BigInt(info.balance))}`;
-      senders.push({
-        value: index,
-        text: `${info.alias} - ${address} (${balance} ${this.selectedNetwork.ticker})`,
-      });
-    }
-
-    this.availableSenders = senders;
+    this.senderAddressInfo = walletState
+      [this.selectedNetwork.kind]
+      [this.selectedAccountIndex]
+      [this.addressIndex];
+    this.availableAmount = humanReadableFlakes(BigInt(this.senderAddressInfo.balance));
+    this.senderAddress = (this.hydraAccount.pub.key(this.addressIndex)).address;
   }
 
   private onSendClicked(): void {
-    this.$bvModal.show('confirm-modal');
-  }
-
-  private onSenderChanged(): void {
-    if (this.senderIndex === null) {
-      this.availableAmount = null;
-      return;
-    }
-
-    const walletState = this.vaultState[this.selectedWalletHash];
-    const info = walletState
-      [this.selectedNetwork.kind]
-      [this.senderAccountIndex!]
-      [this.senderIndex!];
-
-    this.availableAmount = humanReadableFlakes(BigInt(info.balance));
-    this.senderAddressInfo = info;
-    this.senderAddress = this.account.pub.key(info.index).address;
+    this.confirmTxParams = {
+      txType: TxType.TRANSFER,
+      senderAddress: this.senderAddress!,
+      senderAddressIndex: this.addressIndex,
+      senderAddressAlias: this.senderAddressInfo!.alias,
+      senderAvailableAmount: this.availableAmount!,
+      flakesToSend: BigInt(this.amount! * 1e8),
+      target: this.recipient!,
+    };
   }
 }
 </script>

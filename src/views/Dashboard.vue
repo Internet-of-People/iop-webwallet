@@ -71,12 +71,12 @@ export default class Dashboard extends Vue {
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('nextAddressIndex', { namespace: persisted }) nextAddressIndex!: number;
   @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
-  aliasAddressModalVisible = false;
-  loadingAddresses = true;
-  addressRows: Array<AddressListRowInfo> = [];
-  vault: any;
-  account: any;
-  nextAddress = '';
+  private aliasAddressModalVisible = false;
+  private loadingAddresses = true;
+  private addressRows: Array<AddressListRowInfo> = [];
+  private vault: any;
+  private account: any;
+  private nextAddress = '';
 
   async mounted(): Promise<void> {
     if (!this.serializedVault) {

@@ -4,7 +4,6 @@ import { AddressList } from './AddressList';
 import { ConfirmTXModal } from './ConfirmTXModal';
 import { DelegatesList } from './DelegatesList';
 import { NetworkSelector } from './NetworkSelector';
-import { TotalBalance } from './TotalBalance';
 
 export {
   AddressAliasModal,
@@ -13,5 +12,4 @@ export {
   ConfirmTXModal,
   DelegatesList,
   NetworkSelector,
-  TotalBalance,
 };

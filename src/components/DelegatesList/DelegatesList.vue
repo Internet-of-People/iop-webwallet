@@ -82,7 +82,7 @@ export default class DelegatesList extends Vue {
   get delegatesTableFields(): Array<any> {
     const fields = [
       {
-        key: 'rank', label: 'Rank', thClass: 'delegatesRankCol', tdClass: 'text-center',
+        key: 'rank', label: '#', thClass: 'delegatesRankCol text-center', tdClass: 'text-center',
       },
       { key: 'username', label: 'Username', thClass: 'delegatesUsernameCol' },
     ];

@@ -1,30 +1,5 @@
 <template>
-  <b-overlay :show="loading" rounded="sm" spinner-variant="primary">
-    <b-row class="mt-4 mx-2">
-      <b-col cols="6" lg="10">
-        <b-card-title>Addresses</b-card-title>
-      </b-col>
-      <b-col cols="6" lg="2" class="text-right">
-        <b-button
-          size="sm"
-          pill
-          variant="outline-primary"
-          class="hover-button mr-2"
-          @click="onAddClick"
-        >
-          <fa icon="plus" />
-        </b-button>
-        <b-button
-          size="sm"
-          pill
-          variant="outline-primary"
-          class="hover-button"
-          @click="onRefreshClick"
-        >
-          <fa icon="sync-alt" />
-        </b-button>
-      </b-col>
-    </b-row>
+  <b-overlay :show="loading || preparingData" rounded="sm" spinner-variant="primary">
     <b-row>
       <b-col
         sm="12"
@@ -32,8 +7,9 @@
         lg="4"
         xl="3"
         :key="info.address"
-        v-for="info in rows"
+        v-for="info in addressRows"
         class="mt-3"
+        :style="`z-index: 5${1000-info.addressIndex}`"
       >
         <b-card @click="onCardClicked(info.accountIndex, info.addressIndex, $event)">
           <b-card-title class="mb-0">
@@ -46,6 +22,7 @@
                   :addressIndex="info.addressIndex"
                   :addressAlias="info.alias"
                   :address="info.address"
+                  @onDataChanged="rebuildAddressRows"
                 />
               </b-col>
             </b-row>
@@ -56,22 +33,22 @@
         </b-card>
       </b-col>
     </b-row>
-    <b-row v-if="rows.length===0 && !loading">
-      <b-alert show variant="info">
-        No available address.
-      </b-alert>
+    <b-row v-if="addressRows.length===0 && !loading" class="p-3">
+      You have no wallets at the moment.
     </b-row>
-
-
   </b-overlay>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { AddressHamburgerMenu } from '@/components/AddressHamburgerMenu';
 import { WalletNetworkInfo } from '@/types';
 import { namespace as persisted } from '@/store/persisted';
+import { namespace as inMemory } from '@/store/inmemory';
+import { sdk } from '@/sdk';
+import { networkKindToCoin } from '@/utils';
 import { AddressListRowInfo } from './types';
+import { buildRowsFromState } from './utils';
 
 @Component({
   components: {
@@ -79,20 +56,35 @@ import { AddressListRowInfo } from './types';
   },
 })
 export default class AddressList extends Vue {
-  @Prop({ type: Boolean, required: true }) loading = true;
-  @Prop({ type: Array, required: true }) rows!: Array<AddressListRowInfo>;
+  @Prop({ type: Boolean, required: true }) preparingData!: boolean;
+  @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
+  @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
+  @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
+  private loading = true;
+  private vault: any;
+  private account: any;
+  private addressRows: Array<AddressListRowInfo> = [];
 
   get ticker(): string {
     return this.selectedNetwork.ticker;
   }
 
-  private onRefreshClick(): void {
-    this.$emit('onRefreshClicked');
+  private beforeMount(): void {
+    this.loading = true;
+    this.vault = sdk.Crypto.Vault.load(JSON.parse(this.serializedVault));
+    const hydraParams = new sdk.Crypto.HydraParameters(
+      networkKindToCoin(this.selectedNetwork.kind),
+      this.selectedAccountIndex,
+    );
+    sdk.Crypto.HydraPlugin.rewind(this.vault, this.unlockPassword, hydraParams);
+    this.account = sdk.Crypto.HydraPlugin.get(this.vault, hydraParams);
+    this.rebuildAddressRows();
   }
 
-  private onAddClick(): void {
-    this.$emit('onAddClicked');
+  private rebuildAddressRows(): void {
+    this.addressRows = buildRowsFromState(this.account, this.$store);
+    this.loading = false;
   }
 
   private onCardClicked(accountIndex: number, addressIndex: number, event: Event): void {

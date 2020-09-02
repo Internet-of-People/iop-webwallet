@@ -4,6 +4,7 @@ import Vue from 'vue';
 import {
   faArrowRight,
   faArrowDown,
+  faBars,
   faChevronLeft,
   faClipboardList,
   faEllipsisV,
@@ -23,6 +24,7 @@ import {
 import {
   faSave,
   faCheckCircle,
+  faCopy,
   faEdit,
   faEye,
   faFileCode,
@@ -34,8 +36,10 @@ const setup = () => {
     faArrowRight, // <fa icon="arrow-right" />
     faArrowDown, // <fa icon="arrow-down" />
     faCheckCircle, // <fa :icon="['far', 'check-circle']" />
+    faBars, // <fa icon="bars" />
     faChevronLeft, // <fa icon="chevron-left" />
     faClipboardList, // <fa icon="clipboard-list" />
+    faCopy, // <fa :icon="['far', 'copy']" />
     faEdit, // <fa :icon="['far', 'edit']" />
     faEllipsisV, // <fa icon="ellipsis-v" />
     faEraser, // <fa icon="eraser" />

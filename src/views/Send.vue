@@ -1,66 +1,58 @@
 <template>
   <b-container class="mt-4">
-    <b-row>
-      <b-col md="3">
-        <Menu />
-      </b-col>
-      <b-col md="9">
-        <div class="my-5 text-center">
-          <h3>Sending {{ selectedNetwork.ticker }}</h3>
-        </div>
-        <b-form-group
-          label="Sender"
-          v-if="senderAddressInfo"
-        >
-          {{ senderAddressInfo.alias }}<br>
-        <small>{{ senderAddress }}</small>
+    <b-button variant="primary" size="sm" @click="onBackClick" class="mb-3">
+      <fa icon="chevron-left" /> Back
+    </b-button>
+    <b-card class="card-with-shadow">
+      <div>
+        <h3>Sending {{ selectedNetwork.ticker }}</h3>
+      </div>
+      <div>
+        <b-form-group label="Sender" v-if="senderAddressInfo != null">
+          <b-form-input disabled :value="`${senderAddress} (${senderAddressInfo.alias})`" />
         </b-form-group>
-        <h5 class="text-center" v-if="availableAmount">
-          <strong>{{ availableAmount }}</strong> {{ selectedNetwork.ticker }} available to send
-        </h5>
-        <div v-if="addressIndex!==null">
-          <b-form-group
-            id="recipient"
-            label="Recipient Address"
-            label-for="recipient"
-            :state="recipientState"
-          >
-            <b-form-input id="recipient" trim v-model="recipient" :state="recipientState" />
-            <b-form-invalid-feedback :state="recipientState">
-              That's required
-            </b-form-invalid-feedback>
-          </b-form-group>
-          <b-form-group
+        <b-form-group
+          id="recipient"
+          label="Recipient Address"
+          label-for="recipient"
+          :state="recipientState"
+        >
+          <b-form-input id="recipient" trim v-model="recipient" :state="recipientState" />
+          <b-form-invalid-feedback :state="recipientState">
+            That's required
+          </b-form-invalid-feedback>
+        </b-form-group>
+        <b-form-group
+          id="amount"
+          label="Amount"
+          label-for="amount"
+          :state="amountState"
+        >
+          <b-form-input
             id="amount"
-            label="Amount"
-            label-for="amount"
+            v-model="amount"
+            trim
+            number
+            type="number"
             :state="amountState"
-          >
-            <b-form-input
-              id="amount"
-              v-model="amount"
-              trim
-              number
-              type="number"
-              :state="amountState"
-            />
-            <b-form-invalid-feedback :state="amountState">
-              You are not able send that much.
-            </b-form-invalid-feedback>
-          </b-form-group>
-        </div>
-        <div class="text-center">
-          <b-button
-            variant="primary"
-            :disabled="amountState !== true || recipientState !== true"
-            @click="onSendClicked"
-          >
-            CONTINUE
-          </b-button>
-        </div>
-      </b-col>
-    </b-row>
-    <ConfirmTXModal :params.sync="confirmTxParams" />
+          />
+          <b-form-invalid-feedback :state="amountState">
+            You are not able send that much.
+          </b-form-invalid-feedback>
+        </b-form-group>
+      </div>
+      <strong>{{ availableAmount }}</strong> {{ selectedNetwork.ticker }} available to send
+      <div class="mt-4">
+        <b-button
+          variant="primary"
+          :disabled="amountState !== true || recipientState !== true"
+          @click="onSendClicked"
+        >
+          CONTINUE
+        </b-button>
+      </div>
+      <ConfirmTXModal :params.sync="confirmTxParams" />
+    </b-card>
   </b-container>
 </template>
 <script lang="ts">
@@ -70,7 +62,6 @@ import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
 import { sdk } from '@/sdk';
 import { humanReadableFlakes, networkKindToCoin } from '@/utils';
 import { ConfirmTXModal } from '@/components';
-import { Menu } from '@/components/common';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { TxType } from '@/components/ConfirmTXModal';
@@ -79,7 +70,6 @@ import { IConfirmTxModalParams } from '@/components/ConfirmTXModal/type';
 @Component({
   components: {
     ConfirmTXModal,
-    Menu,
   },
 })
 export default class Send extends Vue {
@@ -143,6 +133,10 @@ export default class Send extends Vue {
       [this.addressIndex];
     this.availableAmount = humanReadableFlakes(BigInt(this.senderAddressInfo.balance));
     this.senderAddress = (this.hydraAccount.pub.key(this.addressIndex)).address;
+  }
+
+  private onBackClick(): void {
+    this.$router.back();
   }
 
   private onSendClicked(): void {

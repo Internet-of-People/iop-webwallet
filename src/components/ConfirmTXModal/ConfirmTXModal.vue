@@ -22,7 +22,7 @@
 
         <b-list-group-item class="flex-column align-items-start">
           <div class="text-center">
-            <h3 class="my-4">
+            <h4 class="my-4">
               <template v-if="params.txType === TxType.TRANSFER">
                 <fa icon="arrow-down" />
                 {{ humanAmount }} {{ selectedNetwork.ticker }}
@@ -36,7 +36,7 @@
                 UNVOTE<br>
                 {{ params.target }}
               </template>
-            </h3>
+            </h4>
           </div>
         </b-list-group-item>
         <b-list-group-item
@@ -44,7 +44,7 @@
           v-if="params.txType === TxType.TRANSFER"
         >
           <div class="text-center">
-            <h5 class="mb-1">{{ params.target }}</h5>
+            <h6 class="mb-1">{{ params.target }}</h6>
           </div>
         </b-list-group-item>
       </b-list-group>

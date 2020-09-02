@@ -2,8 +2,17 @@
   <div>
     <b-dropdown size="sm" no-caret variant="light" right>
       <template v-slot:button-content>
-        <fa icon="ellipsis-v" />
+        <template v-if="hamburgerStyle">Actions <fa icon="bars" /></template>
+        <fa v-else icon="ellipsis-v" />
       </template>
+      <b-dropdown-item
+        v-clipboard:copy="address"
+        v-clipboard:success="onAddressCopied"
+      >
+        <fa :icon="['far', 'copy']" class="mr-2" />
+        Copy Address
+      </b-dropdown-item>
+      <b-dropdown-divider></b-dropdown-divider>
       <b-dropdown-item @click="onSendClick">
         <fa :icon="['far', 'money-bill-alt']" class="mr-2" />
         Send
@@ -28,7 +37,7 @@
       </b-dropdown-item>
     </b-dropdown>
     <b-modal
-      id="delete-address-modal"
+      :visible="deleteAddressModalVisible"
       :title="`Delete ${addressAlias}?`"
       no-close-on-esc
       hide-header-close
@@ -46,7 +55,7 @@
       <div>
         <b-button
           variant="outline-primary"
-          @click="$bvModal.hide('delete-address-modal')"
+          @click="() => deleteAddressModalVisible = false"
           class="mr-3"
         >
           CANCEL
@@ -78,19 +87,23 @@ import { RenameAddressParams } from '@/store/persisted/types';
   },
 })
 export default class AddressHamburgerMenu extends Vue {
+  @Prop({ type: Boolean, required: false }) hamburgerStyle!: boolean;
   @Prop({ type: Number, required: true }) addressIndex!: number;
   @Prop({ type: String, required: true }) addressAlias!: string;
   @Prop({ type: String, required: true }) address!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   private aliasAddressModalVisible = false;
+  private deleteAddressModalVisible = false;
 
   private onDeleteAddressClick(): void {
-    this.$bvModal.show('delete-address-modal');
+    this.deleteAddressModalVisible = true;
   }
 
   private onConfirmDeleteClick(): void {
     this.$store.dispatch(`${persisted}/removeAddress`, this.addressIndex);
-    this.$router.push({ name: 'Dashboard' });
+    this.deleteAddressModalVisible = false;
+    this.$emit('onAddressDeleted');
+    this.$emit('onDataChanged');
   }
 
   private onViewAddressClick(): void {
@@ -119,6 +132,17 @@ export default class AddressHamburgerMenu extends Vue {
       alias,
     } as RenameAddressParams);
     this.$emit('onDataChanged');
+  }
+
+  private onAddressCopied(): void {
+    this.$bvToast.toast('Address copied', {
+      variant: 'success',
+      toaster: 'b-toaster-bottom-center',
+      solid: true,
+      autoHideDelay: 2000,
+      noCloseButton: true,
+      bodyClass: 'text-center font-weight-bold',
+    });
   }
 }
 </script>

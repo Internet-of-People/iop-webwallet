@@ -49,6 +49,19 @@ export const networkKindToTicker = (networkKind: WalletNetworkKind): string => {
   }
 };
 
+export const networkKindToNetworkString = (networkKind: WalletNetworkKind): string => {
+  switch (networkKind) {
+    case WalletNetworkKind.HydraTestnet:
+      return 'Testnet';
+    case WalletNetworkKind.HydraDevnet:
+      return 'Devnet';
+    case WalletNetworkKind.HydraMainnet:
+      return 'Mainnet';
+    default:
+      throw new Error(`Unknown kind: ${networkKind}`);
+  }
+};
+
 export const networkKindToNetworkInfo = (
   networkKind: WalletNetworkKind,
 ): WalletNetworkInfo => ({ kind: networkKind, ticker: networkKindToTicker(networkKind) });

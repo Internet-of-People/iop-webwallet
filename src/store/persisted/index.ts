@@ -11,7 +11,7 @@ const namespaced = true;
 export const namespace = 'persisted';
 
 export const state: PersistedState = {
-  selectedNetwork: networkKindToNetworkInfo(WalletNetworkKind.HydraTestnet),
+  selectedNetwork: networkKindToNetworkInfo(WalletNetworkKind.HydraMainnet),
   selectedWalletHash: null,
   selectedAccountIndex: 0,
   vaultState: {},

@@ -1,60 +1,55 @@
 <template>
   <b-container class="mt-4">
-    <b-row>
-      <b-col md="3">
-        <b-nav pills vertical>
-          <b-nav-item active :to="{'name':'Dashboard'}">
-            <fa icon="chevron-left" /> Back
-          </b-nav-item>
-        </b-nav>
+    <b-row no-gutters>
+      <b-col cols="6">
+        <b-button variant="primary" size="sm" :to="{'name':'Dashboard'}" class="mb-3">
+          <fa icon="chevron-left" /> Back to the Dashboard
+        </b-button>
       </b-col>
-      <b-col md="9">
-        <b-row>
-          <b-col md="3">
-            <h3 class="text-primary mb-0">{{ addressAlias }}</h3>
-            {{ address }}<br>
-            <h5 class="mt-3">{{ balance }} {{ selectedNetwork.ticker }}</h5>
-          </b-col>
-          <b-col md="9" class="text-right">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-            >
-              <fa icon="sync-alt" />
-            </b-button>
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              class="ml-2"
-            >
-              <fa :icon="['far', 'money-bill-alt']" class="mr-1" />
-              Send
-            </b-button>
-            <AddressHamburgerMenu
-              :addressIndex="addressIndex"
-              :addressAlias="addressAlias"
-              :address="address"
-            />
-          </b-col>
-        </b-row>
-        <b-card no-body class="mt-3">
-          <b-tabs card>
-            <b-tab title="Last 100 Tx">
-              <b-card-text>TBD</b-card-text>
-            </b-tab>
-            <b-tab title="Vote" active class="m-0 p-0">
-              <DelegatesList
-                :votingOnPubKey="votingOnPubKey"
-                :addressIndex="addressIndex"
-                :address="address"
-                @onVote="(publicKey) => {this.votingOnPubKey = publicKey}"
-                @onUnVote="() => {this.votingOnPubKey = ''}"
-              />
-            </b-tab>
-          </b-tabs>
-        </b-card>
+      <b-col cols="6" class="text-right d-block d-md-none">
+        <AddressHamburgerMenu
+          :hamburgerStyle="true"
+          :addressIndex="addressIndex"
+          :addressAlias="addressAlias"
+          :address="address"
+          @onAddressDeleted="onAddressDeleted"
+        />
       </b-col>
     </b-row>
+    <b-card class="card-with-shadow">
+      <b-row>
+        <b-col sm="12" md="8">
+          <h3 class="text-primary mb-0">{{ addressAlias }}</h3>
+          {{ address }}<br>
+          <h5 class="mt-3">{{ balance }} {{ selectedNetwork.ticker }}</h5>
+        </b-col>
+        <b-col cols="4" class="text-right d-none d-md-block">
+          <AddressHamburgerMenu
+            :hamburgerStyle="true"
+            :addressIndex="addressIndex"
+            :addressAlias="addressAlias"
+            :address="address"
+            @onAddressDeleted="onAddressDeleted"
+          />
+        </b-col>
+      </b-row>
+    </b-card>
+    <b-card no-body class="mt-3 card-with-shadow">
+      <b-tabs card>
+        <b-tab title="Vote" active class="m-0 p-0">
+          <DelegatesList
+            :votingOnPubKey="votingOnPubKey"
+            :addressIndex="addressIndex"
+            :address="address"
+            @onVote="(publicKey) => {this.votingOnPubKey = publicKey}"
+            @onUnVote="() => {this.votingOnPubKey = ''}"
+          />
+        </b-tab>
+        <b-tab title="Transactions (soon)" disabled>
+          <b-card-text>SOON</b-card-text>
+        </b-tab>
+      </b-tabs>
+    </b-card>
   </b-container>
 </template>
 <script lang="ts">
@@ -127,6 +122,10 @@ export default class ViewAddress extends Vue {
     }
 
     this.loading = false;
+  }
+
+  private onAddressDeleted(): void {
+    this.$router.push({ name: 'Dashboard' });
   }
 }
 </script>

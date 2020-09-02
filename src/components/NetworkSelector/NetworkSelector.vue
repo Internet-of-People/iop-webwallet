@@ -1,83 +1,52 @@
 <template>
-  <b-card no-body bg-variant="light">
-    <b-card-body>
-      <b-row no-gutters>
-        <b-col cols="2"><fa class="card-icon mt-0" icon="network-wired" /></b-col>
-        <b-col cols="7" class="pl-3">
-          <b-card-title>Network</b-card-title>
-          <b-card-text>
-            {{ WalletNetworkKind[selectedNetwork.kind] }}
-          </b-card-text>
-        </b-col>
-        <b-col cols="3" class="text-right">
-          <b-button
-            size="sm"
-            pill
-            variant="outline-primary"
-            class="hover-button"
-            @click="onChangeClick"
-          >
-            <fa icon="random" />
-          </b-button>
-        </b-col>
-      </b-row>
-    </b-card-body>
-
-    <b-modal title="Which network would you like to use?" id="network-selector-modal" hide-footer>
-      <div class="text-center mt-4">
-        <b-button-group>
-          <b-button
-            :pressed="selectedNetwork.kind == WalletNetworkKind.HydraTestnet"
-            :variant="variant(WalletNetworkKind.HydraTestnet)"
-            @click="selectNetwork(WalletNetworkKind.HydraTestnet)"
-          >
-            Testnet
-          </b-button>
-          <b-button
-            :pressed="selectedNetwork.kind == WalletNetworkKind.HydraDevnet"
-            :variant="variant(WalletNetworkKind.HydraDevnet)"
-            @click="selectNetwork(WalletNetworkKind.HydraDevnet)"
-          >
-            Devnet
-          </b-button>
-          <b-button
-            :pressed="selectedNetwork.kind == WalletNetworkKind.HydraMainnet"
-            :variant="variant(WalletNetworkKind.HydraMainnet)"
-            @click="selectNetwork(WalletNetworkKind.HydraMainnet)"
-          >
-            Mainnet
-          </b-button>
-        </b-button-group>
-      </div>
-    </b-modal>
-  </b-card>
+  <b-dropdown :text="selectedNetworkName" class="m-md-2" variant="outline-primary">
+    <b-dropdown-item
+      v-for="network in networks"
+      :key="network.kind"
+      @click="selectNetwork(network.kind)"
+    >
+      {{ network.name }}
+    </b-dropdown-item>
+  </b-dropdown>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { WalletNetworkInfo, WalletNetworkKind } from '@/types';
 import { namespace as persisted } from '@/store/persisted';
+import { networkKindToNetworkString } from '@/utils';
+
+interface INetworkDropDownItem {
+  name: string;
+  kind: WalletNetworkKind;
+}
 
 @Component
 export default class NetworkSelector extends Vue {
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
 
-  data() {
-    return {
-      WalletNetworkKind,
-    };
+  get selectedNetworkName(): string {
+    return networkKindToNetworkString(this.selectedNetwork.kind);
   }
 
-  onChangeClick(): void {
-    this.$bvModal.show('network-selector-modal');
+  get networks(): Array<INetworkDropDownItem> {
+    return [
+      {
+        name: networkKindToNetworkString(WalletNetworkKind.HydraTestnet),
+        kind: WalletNetworkKind.HydraTestnet,
+      },
+      {
+        name: networkKindToNetworkString(WalletNetworkKind.HydraDevnet),
+        kind: WalletNetworkKind.HydraDevnet,
+      },
+      {
+        name: networkKindToNetworkString(WalletNetworkKind.HydraMainnet),
+        kind: WalletNetworkKind.HydraMainnet,
+      },
+    ];
   }
 
-  variant(network: WalletNetworkKind): string {
-    return this.selectedNetwork.kind === network ? 'success' : 'light';
-  }
-
-  selectNetwork(kind: WalletNetworkKind): void {
-    this.$bvModal.hide('network-selector-modal');
+  private selectNetwork(kind: WalletNetworkKind): void {
     this.$store.dispatch(`${persisted}/setNetwork`, kind);
     this.$emit('onNetworkChanged');
   }

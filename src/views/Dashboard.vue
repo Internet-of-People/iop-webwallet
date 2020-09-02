@@ -1,30 +1,30 @@
 <template>
-  <b-container fluid class="mt-4">
-    <b-row>
-      <b-col md="3">
-        <Menu />
-      </b-col>
-      <b-col md="9">
-        <b-row>
-          <b-col md="12" lg="6">
-            <TotalBalance
-              :loading="loadingAddresses"
-              @onRefreshClicked="refreshAddresses"
-            />
-          </b-col>
-          <b-col md="12" lg="6" class="mt-0 mt-3 mt-lg-0">
-            <NetworkSelector @onNetworkChanged="networkChanged" />
-          </b-col>
-        </b-row>
-        <AddressList
-          :loading="loadingAddresses"
-          :rows="addressRows"
-          @onRefreshClicked="refreshAddresses"
-          @onAddClicked="onAddAddressClicked"
-          @onDataChanged="rebuildAddressRows"
-        />
-      </b-col>
-    </b-row>
+  <b-container class="mt-4">
+    <b-card class="card-with-shadow">
+      <b-row>
+        <b-col cols="6">
+          <h3>Main Account</h3>
+          <h6 class="text-muted">Total Balance</h6>
+          {{ totalBalance }} {{ ticker }}
+        </b-col>
+        <b-col cols="6" class="text-right">
+          <h3>Network</h3>
+          <NetworkSelector @onNetworkChanged="networkChanged" />
+        </b-col>
+      </b-row>
+    </b-card>
+    <b-card class="mt-3 card-with-shadow">
+      <b-row no-gutters>
+        <b-col cols="6"><h4>My Wallets</h4></b-col>
+        <b-col cols="6" class="text-right">
+          <b-button size="sm" variant="primary" class="mr-2" @click="refreshAddresses">
+            <fa icon="sync-alt" />
+          </b-button>
+          <b-button size="sm" variant="primary" @click="onAddAddressClicked">Create New</b-button>
+        </b-col>
+      </b-row>
+      <AddressList :key="lastUpdate" :preparingData="addressesStateBeingChanged" />
+    </b-card>
     <AddressAliasModal
       :visible.sync="aliasAddressModalVisible"
       @onSave="onAddressAliased"
@@ -34,35 +34,26 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
-import {
-  VaultState, AddressInfo, WalletNetworkInfo, WalletNetworkKind,
-} from '@/types';
+import { AddressInfo, WalletNetworkInfo, WalletNetworkKind } from '@/types';
 import {
   humanReadableFlakes,
   networkKindToCoin,
-  networkKindToTicker,
-  networkKindToSDKNetwork,
   rewindNetworkToState,
   DefaultNetworkAccessorFactory,
 } from '@/utils';
 import { sdk } from '@/sdk';
-import { Menu } from '@/components/common';
 import {
-  AddressList, NetworkSelector, AddressAliasModal, TotalBalance,
+  AddressList, NetworkSelector, AddressAliasModal,
 } from '@/components';
 
-import { buildRowsFromState, AddressListRowInfo } from '@/components/AddressList';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
-import { WalletRootState } from '../store/types';
 
 @Component({
   components: {
     AddressList,
-    Menu,
     NetworkSelector,
     AddressAliasModal,
-    TotalBalance,
   },
 })
 export default class Dashboard extends Vue {
@@ -70,15 +61,25 @@ export default class Dashboard extends Vue {
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
   @Getter('nextAddressIndex', { namespace: persisted }) nextAddressIndex!: number;
+  @Getter('totalFlakes', { namespace: persisted }) totalFlakes!: BigInt;
   @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
   private aliasAddressModalVisible = false;
-  private loadingAddresses = true;
-  private addressRows: Array<AddressListRowInfo> = [];
   private vault: any;
   private account: any;
   private nextAddress = '';
+  private lastUpdate = 0;
+  private addressesStateBeingChanged = false;
+  private alreadyRewindedAccounts: Array<WalletNetworkKind> = [];
 
-  async mounted(): Promise<void> {
+  get totalBalance(): string {
+    return humanReadableFlakes(this.totalFlakes);
+  }
+
+  get ticker(): string {
+    return this.selectedNetwork.ticker;
+  }
+
+  private async mounted(): Promise<void> {
     if (!this.serializedVault) {
       this.$router.push({ name: 'Home' });
       return;
@@ -88,7 +89,6 @@ export default class Dashboard extends Vue {
     this.createAccount();
 
     await this.refreshAddresses();
-    this.loadingAddresses = false;
   }
 
   private async onAddAddressClicked(): Promise<void> {
@@ -113,19 +113,22 @@ export default class Dashboard extends Vue {
       networkKindToCoin(this.selectedNetwork.kind),
       this.selectedAccountIndex,
     );
-    sdk.Crypto.HydraPlugin.rewind(this.vault, this.unlockPassword, hydraParams);
+
+    if (!this.alreadyRewindedAccounts.includes(this.selectedNetwork.kind)) {
+      sdk.Crypto.HydraPlugin.rewind(this.vault, this.unlockPassword, hydraParams);
+      this.alreadyRewindedAccounts.push(this.selectedNetwork.kind);
+    }
+
     this.account = sdk.Crypto.HydraPlugin.get(this.vault, hydraParams);
   }
 
   private async networkChanged(): Promise<void> {
-    console.log(this.selectedNetwork.kind);
     this.createAccount();
     await this.refreshAddresses();
   }
 
   private async refreshAddresses(): Promise<void> {
-    this.loadingAddresses = true;
-
+    this.addressesStateBeingChanged = true;
     await rewindNetworkToState(
       await DefaultNetworkAccessorFactory.create(
         this.selectedNetwork.kind,
@@ -134,20 +137,8 @@ export default class Dashboard extends Vue {
       ),
       this.$store,
     );
-
-    await this.rebuildAddressRows();
-    this.loadingAddresses = false;
-  }
-
-  private async rebuildAddressRows(): Promise<void> {
-    const account = sdk.Crypto.HydraPlugin.get(
-      this.vault,
-      new sdk.Crypto.HydraParameters(
-        networkKindToCoin(this.selectedNetwork.kind),
-        this.selectedAccountIndex,
-      ),
-    );
-    this.addressRows = buildRowsFromState(account, this.$store);
+    this.addressesStateBeingChanged = false;
+    this.lastUpdate = new Date().getTime();
   }
 }
 </script>

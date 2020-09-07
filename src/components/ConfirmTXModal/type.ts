@@ -12,4 +12,5 @@ export interface IConfirmTxModalParams {
   senderAvailableAmount: string;
   flakesToSend: BigInt;
   target: string;
+  targetName: string;
 }

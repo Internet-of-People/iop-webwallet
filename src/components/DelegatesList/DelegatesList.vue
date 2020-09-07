@@ -141,7 +141,8 @@ export default class DelegatesList extends Vue {
       senderAddressAlias: this.addressAlias,
       senderAvailableAmount: this.availableAmount!,
       flakesToSend: BigInt(1 * 1e8),
-      target: this.delegates[this.selectedIndex!].username,
+      target: this.delegates[this.selectedIndex!].publicKey,
+      targetName: this.delegates[this.selectedIndex!].username,
     };
   }
 
@@ -153,7 +154,8 @@ export default class DelegatesList extends Vue {
       senderAddressAlias: this.addressAlias,
       senderAvailableAmount: this.availableAmount!,
       flakesToSend: BigInt(1 * 1e8),
-      target: this.votingOnName!,
+      target: this.votingOnPubKey,
+      targetName: this.votingOnName!,
     };
   }
 

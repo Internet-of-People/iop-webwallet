@@ -30,11 +30,11 @@
               </template>
               <template v-if="params.txType === TxType.VOTE">
                 VOTE ON<br>
-                {{ params.target }}
+                {{ params.targetName }}
               </template>
               <template v-if="params.txType === TxType.UNVOTE">
                 UNVOTE<br>
-                {{ params.target }}
+                {{ params.targetName }}
               </template>
             </h4>
           </div>
@@ -44,7 +44,7 @@
           v-if="params.txType === TxType.TRANSFER"
         >
           <div class="text-center">
-            <h6 class="mb-1">{{ params.target }}</h6>
+            <h6 class="mb-1">{{ params.targetName }}</h6>
           </div>
         </b-list-group-item>
       </b-list-group>
@@ -188,32 +188,29 @@ export default class Send extends Vue {
     const account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
-    const { wif } = account.priv(this.unlockPassword).key(this.params.senderAddressIndex!);
+    const hydraPrivate = account.priv(this.unlockPassword);
     const amount = BigInt(this.params.flakesToSend);
 
     try {
       if (this.params.txType === TxType.TRANSFER) {
-        this.txId = await api.sendTransferTxWithWIF(
-          wif,
-          this.params.target!,
+        this.txId = await api.sendTransferTx(
+          this.params.senderAddress,
+          this.params.target,
           amount,
+          hydraPrivate,
         );
       } else if (this.params.txType === TxType.VOTE) {
-        // TODO
-        this.sentTxType = this.params.txType;
-        this.$emit('onTxCompleted', true, TxType.VOTE); // TODO
-        this.$emit('update:params', null); // TODO
-        this.successVisible = true; // TODO
-        this.sendingTx = false; // TODO
-        return; // TODO
+        this.txId = await api.sendVoteTx(
+          this.params.senderAddress,
+          new sdk.Crypto.SecpPublicKey(this.params.target),
+          hydraPrivate,
+        );
       } else if (this.params.txType === TxType.UNVOTE) {
-        // TODO
-        this.sentTxType = this.params.txType;
-        this.$emit('onTxCompleted', true, TxType.UNVOTE); // TODO
-        this.$emit('update:params', null); // TODO
-        this.successVisible = true; // TODO
-        this.sendingTx = false; // TODO
-        return; // TODO
+        this.txId = await api.sendUnvoteTx(
+          this.params.senderAddress,
+          new sdk.Crypto.SecpPublicKey(this.params.target),
+          hydraPrivate,
+        );
       } else {
         throw new Error(`Invalid txType provided: ${this.params.txType}`);
       }
@@ -245,10 +242,12 @@ export default class Send extends Vue {
       if ((await api.getTxnStatus(this.txId)).isPresent()) {
         clearInterval(interval);
         this.sentTxType = this.params.txType;
-        this.sentToTarget = this.params.target;
+        this.sentToTarget = this.params.targetName;
         this.sentAmount = this.humanAmount;
         this.$emit('update:params', null);
         this.successVisible = true;
+        this.sendingSince = 0;
+        this.sendingTx = false;
         this.$emit('onTxCompleted', true, this.sentTxType);
         return;
       }
@@ -258,6 +257,8 @@ export default class Send extends Vue {
         clearInterval(interval);
         this.$emit('update:params', null);
         this.failVisible = true;
+        this.sendingTx = false;
+        this.sendingSince = 0;
         this.$emit('onTxCompleted', false, this.sentTxType);
       }
     }, 3000);

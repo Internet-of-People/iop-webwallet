@@ -148,6 +148,7 @@ export default class Send extends Vue {
       senderAvailableAmount: this.availableAmount!,
       flakesToSend: BigInt(this.amount! * 1e8),
       target: this.recipient!,
+      targetName: this.recipient!,
     };
   }
 }

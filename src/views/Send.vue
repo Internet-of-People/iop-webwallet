@@ -31,9 +31,7 @@
           <b-form-input
             id="amount"
             v-model="amount"
-            trim
             number
-            type="number"
             :state="amountState"
           />
           <b-form-invalid-feedback :state="amountState">
@@ -60,12 +58,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { VaultState, WalletNetworkInfo, AddressInfo } from '@/types';
 import { sdk } from '@/sdk';
-import { humanReadableFlakes, networkKindToCoin } from '@/utils';
+import { flakesToHuman, humanToFlakes, networkKindToCoin } from '@/utils';
 import { ConfirmTXModal } from '@/components';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { TxType } from '@/components/ConfirmTXModal';
 import { IConfirmTxModalParams } from '@/components/ConfirmTXModal/type';
+import BigNumber from 'bignumber.js';
 
 @Component({
   components: {
@@ -84,19 +83,24 @@ export default class Send extends Vue {
   private senderAddressInfo: AddressInfo | null = null;
   private senderAddress: string | null = null;
   private availableAmount: string | null = null;
-  private amount: number | null = null;
+  private amount: string | null = null;
   private recipient: string | null = null;
   private confirmTxParams: IConfirmTxModalParams | null = null;
 
   get amountState(): boolean | null {
-    if (!this.amount || this.amount === 0) {
+    if (!this.amount) {
       return null;
     }
 
-    const senderBalance = BigInt(this.senderAddressInfo!.balance);
-    const available = BigInt(this.amount * 1e8);
+    const amountFlakes = humanToFlakes(this.amount!);
 
-    return this.amount >= 0.01 && senderBalance > available;
+    if (amountFlakes === 0n) {
+      return null;
+    }
+
+    const senderBalance = BigInt(this.senderAddressInfo!.balance).valueOf();
+
+    return amountFlakes > 0n && senderBalance > amountFlakes;
   }
 
   get TxType(): typeof TxType {
@@ -131,7 +135,7 @@ export default class Send extends Vue {
       [this.selectedNetwork.kind]
       [this.selectedAccountIndex]
       [this.addressIndex];
-    this.availableAmount = humanReadableFlakes(BigInt(this.senderAddressInfo.balance));
+    this.availableAmount = flakesToHuman(BigInt(this.senderAddressInfo.balance));
     this.senderAddress = (this.hydraAccount.pub.key(this.addressIndex)).address;
   }
 
@@ -146,7 +150,7 @@ export default class Send extends Vue {
       senderAddressIndex: this.addressIndex,
       senderAddressAlias: this.senderAddressInfo!.alias,
       senderAvailableAmount: this.availableAmount!,
-      flakesToSend: BigInt(this.amount! * 1e8),
+      flakesToSend: humanToFlakes(this.amount!),
       target: this.recipient!,
       targetName: this.recipient!,
     };

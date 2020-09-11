@@ -36,7 +36,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { AddressInfo, WalletNetworkInfo, WalletNetworkKind } from '@/types';
 import {
-  humanReadableFlakes,
+  flakesToHuman,
   networkKindToCoin,
   rewindNetworkToState,
   DefaultNetworkAccessorFactory,
@@ -72,7 +72,7 @@ export default class Dashboard extends Vue {
   private alreadyRewindedAccounts: Array<WalletNetworkKind> = [];
 
   get totalBalance(): string {
-    return humanReadableFlakes(this.totalFlakes);
+    return flakesToHuman(this.totalFlakes);
   }
 
   get ticker(): string {

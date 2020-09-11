@@ -46,7 +46,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
-import { getApi, humanReadableFlakes } from '@/utils';
+import { getApi, flakesToHuman } from '@/utils';
 import { WalletNetworkInfo, VaultState } from '@/types';
 import { namespace as persisted } from '@/store/persisted';
 import { ConfirmTXModal, TxType } from '@/components/ConfirmTXModal';
@@ -126,7 +126,7 @@ export default class DelegatesList extends Vue {
 
     const addressResp = await api.get(`/api/wallets/${this.address}`, { validateStatus: () => true });
     if (addressResp.status === 200) {
-      this.availableAmount = humanReadableFlakes(BigInt(addressResp.data.data.balance));
+      this.availableAmount = flakesToHuman(BigInt(addressResp.data.data.balance));
     }
 
     this.loading = false;

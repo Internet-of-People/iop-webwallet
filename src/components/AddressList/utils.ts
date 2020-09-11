@@ -2,7 +2,7 @@ import { Store } from 'vuex';
 import { WalletRootState } from '@/store/types';
 import { PersistedState } from '@/store/persisted/types';
 import { namespace as persisted } from '@/store/persisted';
-import { humanReadableFlakes } from '@/utils';
+import { flakesToHuman } from '@/utils';
 import { AddressListRowInfo } from './types';
 
 export const buildRowsFromState = (
@@ -26,7 +26,7 @@ export const buildRowsFromState = (
     addressRows.push({
       address,
       alias: addressInfo.alias,
-      balance: humanReadableFlakes(BigInt(addressInfo.balance)),
+      balance: flakesToHuman(BigInt(addressInfo.balance)),
       accountIndex: 0,
       addressIndex: parseInt(addressIndex, 10),
     });

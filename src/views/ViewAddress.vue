@@ -60,7 +60,7 @@ import { AddressHamburgerMenu, DelegatesList } from '@/components';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { VaultState, WalletNetworkInfo } from '@/types';
-import { networkKindToCoin, humanReadableFlakes, getApi } from '@/utils';
+import { networkKindToCoin, flakesToHuman, getApi } from '@/utils';
 
 interface Delegate {
   username: string;
@@ -117,7 +117,7 @@ export default class ViewAddress extends Vue {
     const resp = await api.get(`/api/wallets/${this.address}`, { validateStatus: () => true });
 
     if (resp.status === 200) {
-      this.balance = humanReadableFlakes(BigInt(resp.data.data.balance));
+      this.balance = flakesToHuman(BigInt(resp.data.data.balance));
       this.votingOnPubKey = resp.data.data.vote ? resp.data.data.vote : '';
     }
 

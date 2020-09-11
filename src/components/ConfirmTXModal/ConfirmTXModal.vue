@@ -144,7 +144,8 @@ import {
   networkKindToSDKNetwork,
   networkKindToCoin,
   networkKindToNetworkURL,
-  humanReadableFlakes,
+  flakesToHuman,
+  humanToFlakes,
 } from '@/utils';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
@@ -173,7 +174,7 @@ export default class Send extends Vue {
   }
 
   get humanAmount(): string {
-    return humanReadableFlakes(this.params.flakesToSend);
+    return flakesToHuman(this.params.flakesToSend);
   }
 
   private async onConfirmSendClick(): Promise<void> {

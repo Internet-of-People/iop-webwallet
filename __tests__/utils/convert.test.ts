@@ -1,21 +1,31 @@
-import { humanReadableFlakes } from '../../src/utils/convert';
+import { flakesToHuman, humanToFlakes } from '../../src/utils/convert';
 
-describe('convert', () => {
+describe('flakesToHuman', () => {
   it('one flake', () => {
-    expect(humanReadableFlakes(BigInt(1))).toBe('0.0000');
+    expect(flakesToHuman(BigInt(1))).toBe('0.0000');
   });
 
   it('10k flakes', () => {
-    expect(humanReadableFlakes(BigInt(10000))).toBe('0.0001');
+    expect(flakesToHuman(BigInt(10000))).toBe('0.0001');
   });
 
   it('100M flakes', () => {
-    expect(humanReadableFlakes(BigInt(100000000))).toBe('1.0000');
+    expect(flakesToHuman(BigInt(100000000))).toBe('1.0000');
   });
 
   it('Huge amount of flakes', () => {
     expect(
-      humanReadableFlakes(BigInt('9999999999999999999999999999999999999')),
+      flakesToHuman(BigInt('9999999999999999999999999999999999999')),
     ).toBe('99,999,999,999,999,999,999,999,999,999.9999');
+  });
+});
+
+describe('humanToFlakes', () => {
+  it('big', () => {
+    expect(humanToFlakes('2000000')).toBe(BigInt('200000000000000'));
+  });
+
+  it('single flake', () => {
+    expect(humanToFlakes('0.00000001')).toBe(BigInt(1));
   });
 });

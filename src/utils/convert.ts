@@ -2,9 +2,18 @@ import { BigNumber } from 'bignumber.js';
 import { sdk } from '@/sdk';
 import { WalletNetworkKind, WalletNetworkInfo } from '@/types';
 
-export const humanReadableFlakes = (flakes: BigInt): string => new BigNumber(flakes.toString())
-  .dividedBy(1e8)
-  .toFormat(4, BigNumber.ROUND_FLOOR);
+export const flakesToHuman = (flakes: BigInt): string => {
+  const bn = new BigNumber(flakes.toString())
+    .dividedBy(1e8);
+  return bn.toFormat(4, BigNumber.ROUND_FLOOR);
+};
+
+export const humanToFlakes = (flakes: string): BigInt => {
+  const bn = new BigNumber(flakes)
+    .multipliedBy(1e8)
+    .integerValue();
+  return BigInt(bn.toString());
+};
 
 export const networkKindToCoin = (networkKind: WalletNetworkKind): string => {
   switch (networkKind) {

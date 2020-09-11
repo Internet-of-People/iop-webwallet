@@ -153,7 +153,7 @@ import { sdk } from '@/sdk';
 import { TxType, IConfirmTxModalParams } from './type';
 
 @Component
-export default class Send extends Vue {
+export default class ConfirmTxModal extends Vue {
   @Prop({ type: Object, required: false }) params!: IConfirmTxModalParams;
   @Getter('serializedVault', { namespace: inMemory }) serializedVault!: string;
   @Getter('selectedNetwork', { namespace: persisted }) selectedNetwork!: WalletNetworkInfo;
@@ -187,6 +187,7 @@ export default class Send extends Vue {
     );
     sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
     const account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
+    account.pub.key(this.params.senderAddressIndex); // create all keys up until this one.
 
     const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(this.selectedNetwork.kind));
     const hydraPrivate = account.priv(this.unlockPassword);
@@ -218,6 +219,7 @@ export default class Send extends Vue {
 
       await this.watchForTxSuccess(api);
     } catch (e) {
+      console.log(e);
       this.txError = e.message;
       this.$emit('update:params', null);
       this.failVisible = true;

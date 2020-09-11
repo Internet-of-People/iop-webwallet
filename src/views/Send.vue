@@ -136,7 +136,7 @@ export default class Send extends Vue {
       [this.selectedAccountIndex]
       [this.addressIndex];
     this.availableAmount = flakesToHuman(BigInt(this.senderAddressInfo.balance));
-    this.senderAddress = (this.hydraAccount.pub.key(this.addressIndex)).address;
+    this.senderAddress = (this.hydraAccount.pub.key(this.senderAddressInfo.index)).address;
   }
 
   private onBackClick(): void {
@@ -147,7 +147,7 @@ export default class Send extends Vue {
     this.confirmTxParams = {
       txType: TxType.TRANSFER,
       senderAddress: this.senderAddress!,
-      senderAddressIndex: this.addressIndex,
+      senderAddressIndex: this.senderAddressInfo!.index,
       senderAddressAlias: this.senderAddressInfo!.alias,
       senderAvailableAmount: this.availableAmount!,
       flakesToSend: humanToFlakes(this.amount!),

@@ -82,7 +82,6 @@ export default class ViewAddress extends Vue {
   @Getter('selectedWalletHash', { namespace: persisted }) selectedWalletHash!: string;
   @Getter('selectedAccountIndex', { namespace: persisted }) selectedAccountIndex!: number;
   @Getter('unlockPassword', { namespace: inMemory }) unlockPassword!: string;
-  private loading = true;
   private address = '';
   private balance = '';
   private votingOnPubKey = '';
@@ -120,8 +119,6 @@ export default class ViewAddress extends Vue {
       this.balance = flakesToHuman(BigInt(resp.data.data.balance));
       this.votingOnPubKey = resp.data.data.vote ? resp.data.data.vote : '';
     }
-
-    this.loading = false;
   }
 
   private onAddressDeleted(): void {
@@ -129,6 +126,3 @@ export default class ViewAddress extends Vue {
   }
 }
 </script>
-<style lang="scss">
-@import './ViewAddress.scss';
-</style>

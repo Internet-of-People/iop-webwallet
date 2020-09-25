@@ -17,12 +17,16 @@
     <b-alert show variant="warning" class="mt-3 mx-3" v-else>
       You're currently not voting.
     </b-alert>
+    <div class="mx-3 mt-5">
+      <b-form-input v-model="delegateFilter" placeholder="Search delegate"></b-form-input>
+    </div>
     <b-table
       sticky-header="400px"
       fixed
       :items="delegates"
       :fields="delegatesTableFields"
       :busy="loading"
+      :filter="delegateFilter"
       class="mt-3"
     >
       <template v-slot:table-busy>
@@ -56,6 +60,8 @@ interface Delegate {
   username: string;
   publicKey: string;
   rank: number;
+  votes: string;
+  _rowVariant: string | null;
 }
 
 @Component({
@@ -78,6 +84,7 @@ export default class DelegatesList extends Vue {
   private confirmTxParams: IConfirmTxModalParams | null = null;
   private selectedIndex: number | null = null;
   private availableAmount: string | null = null;
+  private delegateFilter: string | null = null;
 
   get delegatesTableFields(): Array<any> {
     const fields = [
@@ -85,6 +92,9 @@ export default class DelegatesList extends Vue {
         key: 'rank', label: '#', thClass: 'delegatesRankCol text-center', tdClass: 'text-center',
       },
       { key: 'username', label: 'Username', thClass: 'delegatesUsernameCol' },
+      {
+        key: 'votes', label: 'Votes', thClass: 'text-right', tdClass: 'delegatesVotesCol',
+      },
     ];
 
     if (!this.votingOnPubKey) {
@@ -108,18 +118,19 @@ export default class DelegatesList extends Vue {
   private async beforeMount(): Promise<void> {
     const api = getApi(this.selectedNetwork.kind);
 
-    const resp = await api.get('/api/delegates?page=1&limit=53&orderBy=rank%3Aasc', { validateStatus: () => true });
-    if (resp.status === 200) {
-      this.delegates = resp.data.data.map((d: any): Delegate => ({
-        rank: d.rank,
-        username: d.username,
-        publicKey: d.publicKey,
-      }));
-    }
+    const delegates = await this.loadDelegates();
+
+    this.delegates = delegates.map((d: any): Delegate => ({
+      rank: d.rank,
+      username: d.isResigned ? `${d.username} (resigned)` : d.username,
+      publicKey: d.publicKey,
+      votes: `${flakesToHuman(d.votes)} ${this.selectedNetwork.ticker}`,
+      _rowVariant: d.isResigned ? 'warning' : null,
+    }));
 
     if (this.votingOnPubKey) {
       const delegateResp = await api.get(`/api/wallets/${this.votingOnPubKey}`, { validateStatus: () => true });
-      if (resp.status === 200) {
+      if (delegateResp.status === 200) {
         this.votingOnName = delegateResp.data.data.username;
       }
     }
@@ -130,6 +141,23 @@ export default class DelegatesList extends Vue {
     }
 
     this.loading = false;
+  }
+
+  private async loadDelegates(page = 1): Promise<Array<any>> {
+    let delegates: Array<any> = [];
+    const api = getApi(this.selectedNetwork.kind);
+    const resp = await api.get(`/api/delegates?page=${page}&limit=100&orderBy=rank%3Aasc`, { validateStatus: () => true });
+
+    if (resp.status === 200) {
+      if (resp.data.data.length === 0) {
+        return delegates;
+      }
+
+      delegates = delegates.concat(resp.data.data);
+      delegates = delegates.concat(await this.loadDelegates(page + 1));
+    }
+
+    return delegates;
   }
 
   private async onVoteClick(index: number): Promise<void> {
@@ -176,3 +204,6 @@ export default class DelegatesList extends Vue {
   }
 }
 </script>
+<style lang="scss">
+@import './DelegatesList.scss';
+</style>

@@ -38,7 +38,7 @@
         <b-button
           variant="outline-primary"
           size="sm"
-          @click="onVoteClick(data.index)"
+          @click="onVoteClick(data.item)"
         >
           Vote
         </b-button>
@@ -82,8 +82,8 @@ export default class DelegatesList extends Vue {
   private loading = true;
   private txType: TxType | null = null;
   private confirmTxParams: IConfirmTxModalParams | null = null;
-  private selectedIndex: number | null = null;
   private availableAmount: string | null = null;
+  private selectedDelegate: Delegate | null = null;
   private delegateFilter: string | null = null;
 
   get delegatesTableFields(): Array<any> {
@@ -160,8 +160,8 @@ export default class DelegatesList extends Vue {
     return delegates;
   }
 
-  private async onVoteClick(index: number): Promise<void> {
-    this.selectedIndex = index;
+  private async onVoteClick(delegate: Delegate): Promise<void> {
+    this.selectedDelegate = delegate;
     this.confirmTxParams = {
       txType: TxType.VOTE,
       senderAddress: this.address,
@@ -169,8 +169,8 @@ export default class DelegatesList extends Vue {
       senderAddressAlias: this.addressAlias,
       senderAvailableAmount: this.availableAmount!,
       flakesToSend: BigInt(1 * 1e8),
-      target: this.delegates[this.selectedIndex!].publicKey,
-      targetName: this.delegates[this.selectedIndex!].username,
+      target: delegate.publicKey,
+      targetName: delegate.username,
     };
   }
 
@@ -193,9 +193,9 @@ export default class DelegatesList extends Vue {
     }
 
     if (txType === TxType.VOTE) {
-      this.$emit('update:votingOnPubKey', this.delegates[this.selectedIndex!].publicKey);
-      this.votingOnName = this.delegates[this.selectedIndex!].username;
-      this.$emit('onVote', this.delegates[this.selectedIndex!].publicKey);
+      this.$emit('update:votingOnPubKey', this.selectedDelegate!.publicKey);
+      this.votingOnName = this.selectedDelegate!.username;
+      this.$emit('onVote', this.selectedDelegate!.publicKey);
     } else if (txType === TxType.UNVOTE) {
       this.$emit('update:votingOnPubKey', '');
       this.votingOnName = null;

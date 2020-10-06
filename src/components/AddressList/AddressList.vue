@@ -9,7 +9,6 @@
         :key="info.address"
         v-for="info in addressRows"
         class="mt-3"
-        :style="`z-index: ${1000+info.addressIndex}`"
       >
         <b-card @click="onCardClicked(info.accountIndex, info.addressIndex, $event)">
           <b-card-title class="mb-0">

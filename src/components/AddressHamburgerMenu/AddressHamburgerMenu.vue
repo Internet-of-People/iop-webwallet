@@ -1,6 +1,12 @@
 <template>
   <div>
-    <b-dropdown size="sm" no-caret variant="light" right>
+    <b-dropdown
+      size="sm"
+      no-caret
+      variant="light"
+      right
+      boundary="window"
+    >
       <template v-slot:button-content>
         <template v-if="hamburgerStyle">Actions <fa icon="bars" /></template>
         <fa v-else icon="ellipsis-v" />

@@ -4,7 +4,7 @@ import { sdk } from '@/sdk';
 import { networkKindToSDKNetwork } from './convert';
 
 export const getApi = (networkKind: WalletNetworkKind) => axios.create({
-  baseURL: `${sdk.schemaAndHost(networkKindToSDKNetwork(networkKind))}:4705/`,
+  baseURL: `${sdk.getHostByNetwork(networkKindToSDKNetwork(networkKind))}:4705/`,
   headers: {
     'Content-Type': 'application/json',
   },

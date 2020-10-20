@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.4] - 2020-11-04
+
+- IOP SDK bumped to 4.0.0
+
 ## [0.1.3] - 2020-10-06
 
 - BUGFIX: The action menu is still overflows other cards.

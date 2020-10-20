@@ -22,7 +22,9 @@ export class DefaultNetworkAccessorFactory {
     serializedVault: string,
     unlockPassword: string,
   ): Promise<NetworkAccess> {
-    const api = await sdk.Layer1.createApi(networkKindToSDKNetwork(networkKind));
+    const api = await sdk.Layer1.createApi(
+      sdk.NetworkConfig.fromNetwork(networkKindToSDKNetwork(networkKind)),
+    );
     const vault = sdk.Crypto.Vault.load(JSON.parse(serializedVault));
 
     try {

@@ -43,7 +43,7 @@ export const networkKindToSDKNetwork = (networkKind: WalletNetworkKind): any => 
 
 export const networkKindToNetworkURL = (
   networkKind: WalletNetworkKind,
-): string => sdk.schemaAndHost(networkKindToSDKNetwork(networkKind));
+): string => sdk.getHostByNetwork(networkKindToSDKNetwork(networkKind));
 
 export const networkKindToTicker = (networkKind: WalletNetworkKind): string => {
   switch (networkKind) {

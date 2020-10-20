@@ -1,6 +1,6 @@
 {
   "name": "morpheus-webwallet",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -15,7 +15,7 @@
     "@fortawesome/free-regular-svg-icons": "5.9.0",
     "@fortawesome/free-solid-svg-icons": "5.9.0",
     "@fortawesome/vue-fontawesome": "0.1.6",
-    "@internet-of-people/sdk": "3.2.0",
+    "@internet-of-people/sdk": "4.0.0",
     "axios": "0.20.0",
     "bignumber.js": "9.0.0",
     "bootstrap": "4.5.0",
@@ -51,19 +51,21 @@
     "eslint": "6.7.2",
     "eslint-plugin-import": "2.20.2",
     "eslint-plugin-vue": "6.2.2",
-    "lint-staged": "9.5.0",
+    "husky": "4.3.0",
+    "lint-staged": "10.5.1",
     "node-sass": "4.14.1",
     "sass-loader": "8.0.2",
     "typescript": "3.8.3",
     "vue-template-compiler": "2.6.11"
   },
-  "gitHooks": {
-    "pre-commit": "lint-staged"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "*.{jsx,vue,ts,tsx}": [
-      "vue-cli-service lint",
-      "git add"
+      "vue-cli-service lint"
     ]
   }
 }

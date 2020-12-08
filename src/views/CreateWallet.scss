@@ -3,3 +3,13 @@
   display:block;
   margin:auto;
 }
+
+.input-group-text {
+  min-width: 48px;
+}
+
+@media (max-width:425px) {
+  .input-group-text {
+    font-size: 10px
+  }
+}

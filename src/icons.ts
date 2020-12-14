@@ -14,6 +14,7 @@ import {
   faNetworkWired,
   faPlus,
   faRandom,
+  faRedo,
   faShieldAlt,
   faSyncAlt,
   faUserAstronaut,
@@ -25,6 +26,7 @@ import {
   faSave,
   faCheckCircle,
   faCopy,
+  faClipboard,
   faEdit,
   faEye,
   faFileCode,
@@ -38,6 +40,7 @@ const setup = () => {
     faCheckCircle, // <fa :icon="['far', 'check-circle']" />
     faBars, // <fa icon="bars" />
     faChevronLeft, // <fa icon="chevron-left" />
+    faClipboard, // <fa :icon="['far', 'clipboard']" />
     faClipboardList, // <fa icon="clipboard-list" />
     faCopy, // <fa :icon="['far', 'copy']" />
     faEdit, // <fa :icon="['far', 'edit']" />
@@ -51,6 +54,7 @@ const setup = () => {
     faNetworkWired, // <fa icon="network-wired" />
     faPlus, // <fa icon="plus" />
     faRandom, // <fa icon="random" />
+    faRedo, // <fa icon="redo" />
     faSave, // <fa :icon="['far', 'save']" />
     faShieldAlt, // <fa icon="shield-alt" />
     faSyncAlt, // <fa icon="sync-alt" />

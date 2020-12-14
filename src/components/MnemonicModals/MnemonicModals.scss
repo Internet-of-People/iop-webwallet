@@ -1,0 +1,9 @@
+.input-group-text {
+  min-width: 3rem;
+}
+
+@media (max-width:425px) {
+  .input-group-text {
+    font-size: 0.7rem;
+  }
+}

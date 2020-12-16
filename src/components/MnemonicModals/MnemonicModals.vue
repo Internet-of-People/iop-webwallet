@@ -9,7 +9,7 @@
       no-close-on-esc
       size="lg"
     >
-      <h2 class="text-center my-4"> Your Mnemonic </h2>
+      <h2 class="text-center my-4">Your Mnemonic</h2>
       <b-container d-xs-none>
         <b-form-row>
           <b-col
@@ -73,7 +73,7 @@
               no-close-on-backdrop
               block
             >
-            Back
+              Back
             </b-button>
           </b-col>
           <b-col xs="12" md="6">
@@ -85,7 +85,7 @@
               no-close-on-backdrop
               block
             >
-            Continue
+              Continue
             </b-button>
           </b-col>
         </b-row>
@@ -135,7 +135,7 @@
               no-close-on-backdrop
               block
             >
-            Back
+              Back
             </b-button>
           </b-col>
           <b-col xs="12" md="6">
@@ -163,7 +163,7 @@ import { sdk } from '@/sdk';
 export default class MnemonicModals extends Vue {
     @Prop({ type: Boolean, required: true }) visible = false;
 
-    private bip39 = new sdk.Crypto.Bip39('en');
+    private readonly bip39 = new sdk.Crypto.Bip39('en');
     private mnemonic = '';
     private randomIndices: number[] = [];
     private userInputs: string[] = [];

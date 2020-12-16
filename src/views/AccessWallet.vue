@@ -47,12 +47,12 @@
       </b-col>
     </b-row>
     <AskForPasswordModal
-      @onPasswordProvided="onPasswordProvided"
+      @on-password-provided="onPasswordProvided"
     />
 
     <AskForMnemonicModal
       :visible="mnemonicModalVisible"
-      @onMnemonicProvided="onMnemonicProvided"
+      @on-mnemonic-provided="onMnemonicProvided"
       @back="backToAccessChoice"/>
 
     <b-modal id="error-modal" hide-header hide-footer>

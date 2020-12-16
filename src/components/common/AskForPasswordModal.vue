@@ -42,7 +42,7 @@ export default class AskForPasswordModal extends Vue {
   }
 
   onPasswordProvided(): void {
-    this.$emit('onPasswordProvided', this.password);
+    this.$emit('on-password-provided', this.password);
   }
 }
 </script>

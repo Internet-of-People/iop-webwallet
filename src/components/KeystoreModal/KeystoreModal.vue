@@ -71,6 +71,7 @@ import { sdk } from '@/sdk';
 export default class KeystoreModal extends Vue {
   @Prop({ type: Boolean, required: true }) visible = false;
 
+  private readonly bip39 = new sdk.Crypto.Bip39('en');
   private mnemonic = '';
   private password = '';
 
@@ -82,7 +83,7 @@ export default class KeystoreModal extends Vue {
   }
 
   private generateMnemonic(): void {
-    this.mnemonic = new sdk.Crypto.Bip39('en').generate().phrase;
+    this.mnemonic = this.bip39.generate().phrase;
   }
 
   private generateKeystore(): void {

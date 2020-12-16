@@ -155,9 +155,6 @@ import {
     MnemonicModals,
   },
 })
-import { generateWalletJSON } from '@/utils';
-
-@Component
 export default class CreateWallet extends Vue {
   private tutorialVisible = false;
   private authenticationVisible = false;
@@ -185,22 +182,6 @@ export default class CreateWallet extends Vue {
     this.showMnemonicVisible = false;
     this.keystoreVisible = false;
     this.successVisible = true;
-  }
-  
-  private askForPassword(): void {
-    this.$bvModal.show('password-modal');
-  }
-
-  private generateWallet(): void {
-    const fileName = `hyd-wallet-UTC-${new Date().toISOString().replace(/:/g, '_')}.json`;
-    const vaultJSON = generateWalletJSON(this.password);
-    const blob = new Blob([vaultJSON], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(link.href);
-    this.$bvModal.show('success-modal');
   }
 }
 </script>

@@ -51,7 +51,7 @@ export default class AskForMnemonicModal extends Vue {
   private mnemonic = '';
 
   private onMnemonicProvided() {
-    this.$emit('onMnemonicProvided', this.mnemonic);
+    this.$emit('on-mnemonic-provided', this.mnemonic);
   }
 
   private backToAccessChoice() {

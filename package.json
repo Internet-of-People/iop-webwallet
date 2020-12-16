@@ -7,7 +7,8 @@
     "build": "vue-cli-service build && npm run move-wasm",
     "test": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
-    "move-wasm": "node wasm_path_fixer.js"
+    "move-wasm": "node wasm_path_fixer.js",
+    "release": "release-it --no-npm-publish"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.19",
@@ -54,6 +55,8 @@
     "husky": "4.3.0",
     "lint-staged": "10.5.1",
     "node-sass": "4.14.1",
+    "release-it": "14.2.1",
+    "rimraf": "3.0.2",
     "sass-loader": "8.0.2",
     "typescript": "3.8.3",
     "vue-template-compiler": "2.6.11"
@@ -67,5 +70,13 @@
     "*.{jsx,vue,ts,tsx}": [
       "vue-cli-service lint"
     ]
+  },
+  "release-it": {
+    "git": {
+      "changelog": "npx auto-changelog -p --stdout --commit-limit false -u --commit-url 'https://github.com/Internet-of-People/morpheus-webwallet/commit/{id}' --compare-url 'https://github.com/Internet-of-People/morpheus-webwallet/compare/{from}..{to}' --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs --unreleased-only --hide-credit"
+    },
+    "hooks": {
+      "after:bump": "npx auto-changelog -p --commit-limit false -u --commit-url 'https://github.com/Internet-of-People/morpheus-webwallet/commit/{id}' --compare-url 'https://github.com/Internet-of-People/morpheus-webwallet/{from}..{to}' --unreleased false --hide-credit"
+    }
   }
 }

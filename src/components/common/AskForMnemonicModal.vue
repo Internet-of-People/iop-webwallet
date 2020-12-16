@@ -15,9 +15,9 @@
         Don't forget the spaces between the words and
         remember that the order of the words is important!
       </p>
-        <b-input-group class="my-3">
-          <b-form-input v-model="mnemonic"/>
-        </b-input-group>
+      <b-input-group class="my-3">
+        <b-form-input v-model="mnemonic"/>
+      </b-input-group>
       <b-row>
         <b-col xs="12" md="6" class="my-3">
           <b-button
@@ -41,7 +41,6 @@
     </b-container>
   </b-modal>
 </template>
-
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 

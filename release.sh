@@ -4,7 +4,7 @@ master="master"
 develop="develop"
 
 master_latest=$(git ls-remote origin $master | awk '{ print $1}')
-develop_latest=$(git ls-remote origign $develop | awk '{ print $1 }')
+develop_latest=$(git ls-remote origin $develop | awk '{ print $1 }')
 local_master_latest=$(git rev-parse $master)
 local_develop_latest=$(git rev-parse $develop)
 current_branch=$(git branch --show-current)

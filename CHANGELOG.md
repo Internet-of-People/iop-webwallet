@@ -2,9 +2,16 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.1.7](https://github.com/Internet-of-People/morpheus-webwallet/0.1.6..0.1.7)
+
+- Build latest wallet #2 [`965f642`](https://github.com/Internet-of-People/morpheus-webwallet/commit/965f642da4a3abb14fe8a7a15fc22ee787403d0b)
+
 #### [0.1.6](https://github.com/Internet-of-People/morpheus-webwallet/0.1.5..0.1.6)
 
+> 18 December 2020
+
 - Build latest wallet [`90b323a`](https://github.com/Internet-of-People/morpheus-webwallet/commit/90b323a3a068c529e3eaa6fe89430c0a6b690993)
+- Release 0.1.6 [`4323e30`](https://github.com/Internet-of-People/morpheus-webwallet/commit/4323e30fab6c71ab5d58802216f00b92b5728918)
 
 #### [0.1.5](https://github.com/Internet-of-People/morpheus-webwallet/0.1.2..0.1.5)
 

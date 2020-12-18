@@ -2,13 +2,20 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.1.6](https://github.com/Internet-of-People/morpheus-webwallet/0.1.5..0.1.6)
+
+- Build latest wallet [`90b323a`](https://github.com/Internet-of-People/morpheus-webwallet/commit/90b323a3a068c529e3eaa6fe89430c0a6b690993)
+
 #### [0.1.5](https://github.com/Internet-of-People/morpheus-webwallet/0.1.2..0.1.5)
+
+> 17 December 2020
 
 - Upgrading to the latest sdk [`f731319`](https://github.com/Internet-of-People/morpheus-webwallet/commit/f7313197b354273e8c754d205cb076a40e72cb9b)
 - Added Release Script [`25daa40`](https://github.com/Internet-of-People/morpheus-webwallet/commit/25daa40aecfeff8e514dd729662a56f5b6dec68f)
 - Refactored CreateWallet [`077aa49`](https://github.com/Internet-of-People/morpheus-webwallet/commit/077aa495252b9af8ef0ae04562537aaaaa980d16)
 - Add option to generate mnemonic [`c98de3c`](https://github.com/Internet-of-People/morpheus-webwallet/commit/c98de3cd2c26e72b52d29b52c042864b2e682826)
 - Mnemonic can be used to access wallet [`a7be537`](https://github.com/Internet-of-People/morpheus-webwallet/commit/a7be5373b8101a4eb6a5bdce04fc80f0b0d3255e)
+- Release 0.1.5 [`d925b12`](https://github.com/Internet-of-People/morpheus-webwallet/commit/d925b126190cc33155dc61ffc38d2fa03e39fb6f)
 - Event names kebab-case instead camelCase [`46081be`](https://github.com/Internet-of-People/morpheus-webwallet/commit/46081bed68063a5a6ffbf601eced2a9ff385b2ec)
 - Bugfix: The action menu is still overflows other cards [`9779545`](https://github.com/Internet-of-People/morpheus-webwallet/commit/9779545b82285763c52cd86cb31579fc00274050)
 - Minor code fixes [`3f96119`](https://github.com/Internet-of-People/morpheus-webwallet/commit/3f96119ddda639bd7199e8aab711df2d132559db)

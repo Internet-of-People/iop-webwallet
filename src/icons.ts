@@ -21,6 +21,7 @@ import {
   faUserLock,
   faUserSecret,
   faWallet,
+  faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faSave,
@@ -56,6 +57,7 @@ const setup = () => {
     faRandom, // <fa icon="random" />
     faRedo, // <fa icon="redo" />
     faSave, // <fa :icon="['far', 'save']" />
+    faExclamationTriangle, // <fa icon="fa-exclamation-triangle" />
     faShieldAlt, // <fa icon="shield-alt" />
     faSyncAlt, // <fa icon="sync-alt" />
     faUserAstronaut, // <fa icon="user-astronaut" />

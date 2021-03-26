@@ -32,13 +32,26 @@
                 </b-row>
               </b-card-text>
             </b-card>
-            <b-card class="mb-4">
+            <b-card class="mb-2">
               <b-card-text>
                 <b-row no-gutters>
                   <b-col cols="2"><fa class="step-icon" :icon="['far', 'save']" /></b-col>
                   <b-col cols="10">
                     <h5>Make a Backup</h5>
                     Secure it like the millions of dollars it may one day be worth.
+                  </b-col>
+                </b-row>
+              </b-card-text>
+            </b-card>
+            <b-card class="mb-4">
+              <b-card-text>
+                <b-row no-gutters>
+                  <b-col cols="2"><fa class="step-icon" icon="exclamation-triangle" /></b-col>
+                  <b-col cols="10">
+                    <h5>Privacy First</h5>
+                    IOP does not store your data. The Webwallet only stores your wallet aliases in
+                    your browser's localstorage. Moving to other computer will not affect your
+                    balances, but your settings, like wallet aliases will not be there.
                   </b-col>
                 </b-row>
               </b-card-text>

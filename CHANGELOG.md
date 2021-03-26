@@ -2,9 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.1.8](https://github.com/Internet-of-People/morpheus-webwallet/0.1.7..0.1.8)
+
+- Docker build must not depend on host machine's build [`06e120b`](https://github.com/Internet-of-People/morpheus-webwallet/commit/06e120b9e65ba2682471f0e0b7fbc966513c0739)
+- Add some text that the wallet stores data in localstorage [`0cd07cd`](https://github.com/Internet-of-People/morpheus-webwallet/commit/0cd07cd79ad073dbbbd0a17f4d77a3bce78c59b7)
+- dist is in .gitignore [`39abe19`](https://github.com/Internet-of-People/morpheus-webwallet/commit/39abe19fb0a13113b0809fe1486178e383896bdb)
+
 #### [0.1.7](https://github.com/Internet-of-People/morpheus-webwallet/0.1.6..0.1.7)
 
+> 18 December 2020
+
 - Build latest wallet #2 [`965f642`](https://github.com/Internet-of-People/morpheus-webwallet/commit/965f642da4a3abb14fe8a7a15fc22ee787403d0b)
+- Release 0.1.7 [`2a89374`](https://github.com/Internet-of-People/morpheus-webwallet/commit/2a89374521699dd9f5497cfa84dcc2129121d320)
 
 #### [0.1.6](https://github.com/Internet-of-People/morpheus-webwallet/0.1.5..0.1.6)
 

@@ -1,4 +1,11 @@
-FROM nginx:stable-alpine
+# Build Stage 1
+FROM node:12 AS appbuild
+WORKDIR /usr/src/app
+COPY ./ ./
+RUN npm ci
+RUN npm run build
 
-COPY ./dist /usr/share/nginx/html
+# Build Stage 2
+FROM nginx:stable-alpine
 COPY ./docker/nginx.mime.types /etc/nginx/mime.types
+COPY --from=appbuild /usr/src/app/dist /usr/share/nginx/html

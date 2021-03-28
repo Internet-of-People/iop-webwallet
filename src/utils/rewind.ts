@@ -1,5 +1,5 @@
 import { Store } from 'vuex';
-import { Types } from '@internet-of-people/sdk';
+import { NetworkConfig, Types } from '@internet-of-people/sdk';
 import { sdk } from '@/sdk';
 import { WalletNetworkKind, AddressInfo } from '@/types';
 import { WalletRootState } from '@/store/types';
@@ -22,8 +22,23 @@ export class DefaultNetworkAccessorFactory {
     serializedVault: string,
     unlockPassword: string,
   ): Promise<NetworkAccess> {
+    let host;
+    switch (networkKind) {
+      case WalletNetworkKind.HydraTestnet:
+        host = 'https://test.explorer.hydraledger.io';
+        break;
+      case WalletNetworkKind.HydraDevnet:
+        host = 'https://dev.explorer.hydraledger.io';
+        break;
+      case WalletNetworkKind.HydraMainnet:
+        host = 'https://explorer.hydraledger.io';
+        break;
+      default:
+        throw new Error(`Unknown network ${networkKind}`);
+    }
+
     const api = await sdk.Layer1.createApi(
-      sdk.NetworkConfig.fromNetwork(networkKindToSDKNetwork(networkKind)),
+      sdk.NetworkConfig.fromUrl(host, 4705),
     );
     const vault = sdk.Crypto.Vault.load(JSON.parse(serializedVault));
 

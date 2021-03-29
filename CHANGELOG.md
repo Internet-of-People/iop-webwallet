@@ -2,10 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.1.9](https://github.com/Internet-of-People/morpheus-webwallet/0.1.8..0.1.9)
+
+- HOTFIX: somewhere in the code we left old domains [`61318a4`](https://github.com/Internet-of-People/morpheus-webwallet/commit/61318a4c6f1fea95181e7af8b1f231490c298f4e)
+- HOTFIX: sdk's redirect doesn't work in browsers, because of CORS [`e8dcc89`](https://github.com/Internet-of-People/morpheus-webwallet/commit/e8dcc89051e86f6d9cfc73fc1101ccfd0d6a2958)
+
 #### [0.1.8](https://github.com/Internet-of-People/morpheus-webwallet/0.1.7..0.1.8)
+
+> 26 March 2021
 
 - Docker build must not depend on host machine's build [`06e120b`](https://github.com/Internet-of-People/morpheus-webwallet/commit/06e120b9e65ba2682471f0e0b7fbc966513c0739)
 - Add some text that the wallet stores data in localstorage [`0cd07cd`](https://github.com/Internet-of-People/morpheus-webwallet/commit/0cd07cd79ad073dbbbd0a17f4d77a3bce78c59b7)
+- Release 0.1.8 [`499492b`](https://github.com/Internet-of-People/morpheus-webwallet/commit/499492b5b90bc39ed759d515a123ba578bae2559)
 - dist is in .gitignore [`39abe19`](https://github.com/Internet-of-People/morpheus-webwallet/commit/39abe19fb0a13113b0809fe1486178e383896bdb)
 
 #### [0.1.7](https://github.com/Internet-of-People/morpheus-webwallet/0.1.6..0.1.7)

@@ -190,7 +190,7 @@ export default class ConfirmTxModal extends Vue {
     account.pub.key(this.params.senderAddressIndex); // create all keys up until this one.
 
     const api = await sdk.Layer1.createApi(
-      sdk.NetworkConfig.fromNetwork(networkKindToSDKNetwork(this.selectedNetwork.kind)),
+      sdk.NetworkConfig.fromUrl(networkKindToNetworkURL(this.selectedNetwork.kind), 4705),
     );
     const hydraPrivate = account.priv(this.unlockPassword);
     const amount = BigInt(this.params.flakesToSend);

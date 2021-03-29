@@ -43,7 +43,18 @@ export const networkKindToSDKNetwork = (networkKind: WalletNetworkKind): any => 
 
 export const networkKindToNetworkURL = (
   networkKind: WalletNetworkKind,
-): string => sdk.getHostByNetwork(networkKindToSDKNetwork(networkKind));
+): string => {
+  switch (networkKind) {
+    case WalletNetworkKind.HydraTestnet:
+      return 'https://test.explorer.hydraledger.io';
+    case WalletNetworkKind.HydraDevnet:
+      return 'https://dev.explorer.hydraledger.io';
+    case WalletNetworkKind.HydraMainnet:
+      return 'https://explorer.hydraledger.io';
+    default:
+      throw new Error(`Unknown network ${networkKind}`);
+  }
+};
 
 export const networkKindToTicker = (networkKind: WalletNetworkKind): string => {
   switch (networkKind) {

@@ -2,10 +2,17 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.1.10](https://github.com/Internet-of-People/iop-webwallet/0.1.9..0.1.10)
+
+- Move to iop-webwallet [`fb948d2`](https://github.com/Internet-of-People/iop-webwallet/commit/fb948d213ea4faaee2c9e45d74d399079c7be324)
+
 #### [0.1.9](https://github.com/Internet-of-People/iop-webwallet/0.1.8..0.1.9)
+
+> 29 March 2021
 
 - HOTFIX: somewhere in the code we left old domains [`61318a4`](https://github.com/Internet-of-People/iop-webwallet/commit/61318a4c6f1fea95181e7af8b1f231490c298f4e)
 - HOTFIX: sdk's redirect doesn't work in browsers, because of CORS [`e8dcc89`](https://github.com/Internet-of-People/iop-webwallet/commit/e8dcc89051e86f6d9cfc73fc1101ccfd0d6a2958)
+- Release 0.1.9 [`80d7cd5`](https://github.com/Internet-of-People/iop-webwallet/commit/80d7cd5d9611f618cef242b081fa2a1f4971233f)
 
 #### [0.1.8](https://github.com/Internet-of-People/iop-webwallet/0.1.7..0.1.8)
 

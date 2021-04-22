@@ -1,5 +1,5 @@
 {
-  "name": "morpheus-webwallet",
+  "name": "iop-webwallet",
   "version": "0.1.9",
   "private": true,
   "scripts": {
@@ -73,10 +73,10 @@
   },
   "release-it": {
     "git": {
-      "changelog": "npx auto-changelog -p --stdout --commit-limit false -u --commit-url 'https://github.com/Internet-of-People/morpheus-webwallet/commit/{id}' --compare-url 'https://github.com/Internet-of-People/morpheus-webwallet/compare/{from}..{to}' --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs --unreleased-only --hide-credit"
+      "changelog": "npx auto-changelog -p --stdout --commit-limit false -u --commit-url 'https://github.com/Internet-of-People/iop-webwallet/commit/{id}' --compare-url 'https://github.com/Internet-of-People/iop-webwallet/compare/{from}..{to}' --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs --unreleased-only --hide-credit"
     },
     "hooks": {
-      "after:bump": "npx auto-changelog -p --commit-limit false -u --commit-url 'https://github.com/Internet-of-People/morpheus-webwallet/commit/{id}' --compare-url 'https://github.com/Internet-of-People/morpheus-webwallet/{from}..{to}' --unreleased false --hide-credit"
+      "after:bump": "npx auto-changelog -p --commit-limit false -u --commit-url 'https://github.com/Internet-of-People/iop-webwallet/commit/{id}' --compare-url 'https://github.com/Internet-of-People/iop-webwallet/{from}..{to}' --unreleased false --hide-credit"
     }
   }
 }

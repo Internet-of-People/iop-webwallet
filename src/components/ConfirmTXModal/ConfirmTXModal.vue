@@ -185,7 +185,7 @@ export default class ConfirmTxModal extends Vue {
       networkKindToCoin(this.selectedNetwork.kind),
       this.selectedAccountIndex,
     );
-    sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
+    sdk.Crypto.HydraPlugin.init(vault, this.unlockPassword, hydraParams);
     const account = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
     account.pub.key(this.params.senderAddressIndex); // create all keys up until this one.
 
@@ -202,6 +202,8 @@ export default class ConfirmTxModal extends Vue {
           this.params.target,
           amount,
           hydraPrivate,
+          undefined,
+          this.params.smartbridge,
         );
       } else if (this.params.txType === TxType.VOTE) {
         this.txId = await api.sendVoteTx(

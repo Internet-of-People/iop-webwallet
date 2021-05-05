@@ -23,6 +23,16 @@
           </b-form-invalid-feedback>
         </b-form-group>
         <b-form-group
+          id="smartbridge"
+          label="Smartbridge (optional)"
+          label-for="smartbridge"
+        >
+          <b-form-input id="smartbridge" trim v-model="smartbridge" :state="smartbridgeState" />
+          <b-form-invalid-feedback :state="smartbridgeState">
+            The smartbridge field cannot exceed 127 characters.
+          </b-form-invalid-feedback>
+        </b-form-group>
+        <b-form-group
           id="amount"
           label="Amount"
           label-for="amount"
@@ -85,6 +95,7 @@ export default class Send extends Vue {
   private availableAmount: string | null = null;
   private amount: string | null = null;
   private recipient: string | null = null;
+  private smartbridge: string | null = null;
   private confirmTxParams: IConfirmTxModalParams | null = null;
 
   get amountState(): boolean | null {
@@ -101,6 +112,13 @@ export default class Send extends Vue {
     const senderBalance = BigInt(this.senderAddressInfo!.balance).valueOf();
 
     return amountFlakes > 0n && senderBalance > amountFlakes;
+  }
+
+  get smartbridgeState(): boolean | null {
+    if (!this.smartbridge) {
+      return null;
+    }
+    return this.smartbridge.length < 128;
   }
 
   get TxType(): typeof TxType {
@@ -127,7 +145,7 @@ export default class Send extends Vue {
       networkKindToCoin(this.selectedNetwork.kind),
       this.selectedAccountIndex,
     );
-    sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
+    sdk.Crypto.HydraPlugin.init(vault, this.unlockPassword, hydraParams);
     this.hydraAccount = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 
     const walletState = this.vaultState[this.selectedWalletHash];
@@ -153,6 +171,7 @@ export default class Send extends Vue {
       flakesToSend: humanToFlakes(this.amount!),
       target: this.recipient!,
       targetName: this.recipient!,
+      smartbridge: this.smartbridge ?? undefined,
     };
   }
 }

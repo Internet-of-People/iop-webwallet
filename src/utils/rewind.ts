@@ -28,7 +28,7 @@ export class DefaultNetworkAccessorFactory {
     const vault = sdk.Crypto.Vault.load(JSON.parse(serializedVault));
 
     try {
-      sdk.Crypto.HydraPlugin.rewind(vault, unlockPassword,
+      sdk.Crypto.HydraPlugin.init(vault, unlockPassword,
         new sdk.Crypto.HydraParameters(networkKindToCoin(networkKind), 0));
     } catch (e) {
       throw new Error(`Failed to access wallet: ${e}`);

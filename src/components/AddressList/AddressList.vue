@@ -76,7 +76,7 @@ export default class AddressList extends Vue {
       networkKindToCoin(this.selectedNetwork.kind),
       this.selectedAccountIndex,
     );
-    sdk.Crypto.HydraPlugin.rewind(this.vault, this.unlockPassword, hydraParams);
+    sdk.Crypto.HydraPlugin.init(this.vault, this.unlockPassword, hydraParams);
     this.account = sdk.Crypto.HydraPlugin.get(this.vault, hydraParams);
     this.rebuildAddressRows();
   }

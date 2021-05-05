@@ -16,7 +16,7 @@
     "@fortawesome/free-regular-svg-icons": "5.9.0",
     "@fortawesome/free-solid-svg-icons": "5.9.0",
     "@fortawesome/vue-fontawesome": "0.1.6",
-    "@internet-of-people/sdk": "4.0.0",
+    "@internet-of-people/sdk": "4.0.8",
     "axios": "0.20.0",
     "bignumber.js": "9.0.0",
     "bootstrap": "4.5.0",

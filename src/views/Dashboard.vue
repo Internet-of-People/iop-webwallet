@@ -115,7 +115,7 @@ export default class Dashboard extends Vue {
     );
 
     if (!this.alreadyRewindedAccounts.includes(this.selectedNetwork.kind)) {
-      sdk.Crypto.HydraPlugin.rewind(this.vault, this.unlockPassword, hydraParams);
+      sdk.Crypto.HydraPlugin.init(this.vault, this.unlockPassword, hydraParams);
       this.alreadyRewindedAccounts.push(this.selectedNetwork.kind);
     }
 

@@ -107,7 +107,7 @@ export default class ViewAddress extends Vue {
       networkKindToCoin(this.selectedNetwork.kind),
       this.selectedAccountIndex,
     );
-    sdk.Crypto.HydraPlugin.rewind(vault, this.unlockPassword, hydraParams);
+    sdk.Crypto.HydraPlugin.init(vault, this.unlockPassword, hydraParams);
     const hydraAccount = sdk.Crypto.HydraPlugin.get(vault, hydraParams);
 
     this.address = (hydraAccount.pub.key(this.addressIndex)).address;

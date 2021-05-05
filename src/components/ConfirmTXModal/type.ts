@@ -13,4 +13,5 @@ export interface IConfirmTxModalParams {
   flakesToSend: BigInt;
   target: string;
   targetName: string;
+  smartbridge?: string;
 }

@@ -2,9 +2,16 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.1.11](https://github.com/Internet-of-People/iop-webwallet/0.1.10..0.1.11)
+
+- Added smartbridge field when sending transaction [`12a26c2`](https://github.com/Internet-of-People/iop-webwallet/commit/12a26c2027a80324696607c6f62f3df4bb9c858f)
+
 #### [0.1.10](https://github.com/Internet-of-People/iop-webwallet/0.1.9..0.1.10)
 
+> 22 April 2021
+
 - Move to iop-webwallet [`fb948d2`](https://github.com/Internet-of-People/iop-webwallet/commit/fb948d213ea4faaee2c9e45d74d399079c7be324)
+- Release 0.1.10 [`eccf562`](https://github.com/Internet-of-People/iop-webwallet/commit/eccf5629a382ccc2d896f2a6098457314a6c8869)
 
 #### [0.1.9](https://github.com/Internet-of-People/iop-webwallet/0.1.8..0.1.9)
 

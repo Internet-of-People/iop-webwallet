@@ -1,6 +1,6 @@
 <template>
   <b-container class="mt-4">
-    <b-button variant="primary" size="sm" @click="onBackClick" class="mb-3">
+    <b-button variant="outline-primary" size="sm" @click="onBackClick" class="mb-3">
       <fa icon="chevron-left" /> Back
     </b-button>
     <b-card class="card-with-shadow">
@@ -56,7 +56,7 @@
           :disabled="amountState !== true || recipientState !== true"
           @click="onSendClicked"
         >
-          CONTINUE
+          Continue
         </b-button>
       </div>
       <ConfirmTXModal :params.sync="confirmTxParams" />
@@ -74,7 +74,6 @@ import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { TxType } from '@/components/ConfirmTXModal';
 import { IConfirmTxModalParams } from '@/components/ConfirmTXModal/type';
-import BigNumber from 'bignumber.js';
 
 @Component({
   components: {

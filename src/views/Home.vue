@@ -16,7 +16,7 @@
             </b-row>
             <div class="mt-auto text-center">
               <b-button :to="{'name':'CreateWallet'}" variant="primary">
-                GET STARTED
+                Get Started
                 <fa icon="arrow-right" />
               </b-button>
             </div>
@@ -41,7 +41,7 @@
             </b-row>
             <div class="mt-auto text-center">
               <b-button :to="{'name':'AccessWallet'}" variant="primary">
-                ACCESS NOW
+                Access Now
                 <fa icon="arrow-right" />
               </b-button>
             </div>

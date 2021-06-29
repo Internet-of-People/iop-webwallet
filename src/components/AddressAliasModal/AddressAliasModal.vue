@@ -5,6 +5,7 @@
     no-close-on-backdrop
     no-close-on-esc
     hide-header-close
+    hide-footer
   >
     <b-form-group v-if="address" id="address" label="Address" label-for="address">
       <b-form-input id="address" disabled trim :value="address"></b-form-input>
@@ -19,15 +20,15 @@
     >
       <b-form-input id="alias" v-model="aliasInternal" :state="aliasState" trim></b-form-input>
     </b-form-group>
-    <template v-slot:modal-footer>
-      <b-button size="sm" variant="outline-primary" @click="onCancel">
-        CANCEL
+    <div class="text-center">
+      <b-button variant="light" @click="onCancel" class="mr-3">
+        Cancel
       </b-button>
       <!-- Button with custom close trigger value -->
-      <b-button size="sm" variant="primary" :disabled="!aliasState" @click="onSave">
-        SAVE
+      <b-button variant="primary" :disabled="!aliasState" @click="onSave">
+        Save
       </b-button>
-    </template>
+    </div>
   </b-modal>
 </template>
 <script lang="ts">

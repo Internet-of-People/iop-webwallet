@@ -58,7 +58,6 @@
             </b-card>
             <b-button
               @click="toAskForAuthenticationChoice"
-              size="lg"
               variant="primary"
               class="mx-auto d-block"
             >
@@ -96,7 +95,6 @@
         <b-row>
           <b-col xs="12" md="6">
             <b-button
-              size="lg"
               variant="primary"
               class="my-3 btn-block"
               @click="toShowMnemonic"
@@ -106,7 +104,6 @@
           </b-col>
           <b-col xs="12" md="6">
             <b-button
-              size="lg"
               variant="primary"
               class="my-3 btn-block"
               md="my-auto"

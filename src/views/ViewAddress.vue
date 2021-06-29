@@ -2,7 +2,7 @@
   <b-container class="mt-4">
     <b-row no-gutters>
       <b-col cols="6">
-        <b-button variant="primary" size="sm" :to="{'name':'Dashboard'}" class="mb-3">
+        <b-button variant="outline-primary" size="sm" :to="{'name':'Dashboard'}" class="mb-3">
           <fa icon="chevron-left" /> Back to the Dashboard
         </b-button>
       </b-col>

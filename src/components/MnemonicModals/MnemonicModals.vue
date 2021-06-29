@@ -66,7 +66,6 @@
         <b-row>
           <b-col xs="12" md="6">
             <b-button
-              size="lg"
               variant="light"
               class="mx-auto my-2"
               @click="backToAuthenticationChoice"
@@ -78,7 +77,6 @@
           </b-col>
           <b-col xs="12" md="6">
             <b-button
-              size="lg"
               variant="primary"
               class="mx-auto my-2"
               @click="toCheckMnemonic"

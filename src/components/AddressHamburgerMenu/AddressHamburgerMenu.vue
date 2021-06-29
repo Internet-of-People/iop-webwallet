@@ -50,7 +50,7 @@
       no-close-on-backdrop
       hide-footer
     >
-      <b-alert show variant="info">
+      <b-alert show variant="info" class="text-center">
         <strong>Are you sure you'd like to delete this address?</strong><br>
         <p>
           Deleting an address WILL NOT touch your balance in any way.
@@ -58,16 +58,16 @@
         </p>
       </b-alert>
 
-      <div>
+      <div class="text-center">
         <b-button
-          variant="outline-primary"
+          variant="light"
           @click="() => deleteAddressModalVisible = false"
           class="mr-3"
         >
-          CANCEL
+          Cancel
         </b-button>
-        <b-button variant="outline-danger" @click="onConfirmDeleteClick">
-          YES, DELETE
+        <b-button variant="danger" @click="onConfirmDeleteClick">
+          Yes, Delete
         </b-button>
       </div>
     </b-modal>

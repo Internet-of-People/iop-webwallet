@@ -29,11 +29,11 @@
                 <fa icon="arrow-down" />
               </template>
               <template v-if="params.txType === TxType.VOTE">
-                VOTE ON<br>
+                Vote on<br>
                 {{ params.targetName }}
               </template>
               <template v-if="params.txType === TxType.UNVOTE">
-                UNVOTE<br>
+                Unvote<br>
                 {{ params.targetName }}
               </template>
             </h4>
@@ -51,12 +51,12 @@
       <b-row no-gutters v-if="!sendingTx">
         <b-col class="text-center my-4">
           <b-button variant="outline-primary mr-3" @click="() => this.$emit('update:params', null)">
-            CANCEL
+            Cancel
           </b-button>
           <b-button variant="primary" @click="onConfirmSendClick">
-            SEND {{ humanAmount }} {{ selectedNetwork.ticker }}
-            <template v-if="params.txType === TxType.VOTE">(VOTE)</template>
-            <template v-if="params.txType === TxType.UNVOTE">(UNVOTE)</template>
+            Send {{ humanAmount }} {{ selectedNetwork.ticker }}
+            <template v-if="params.txType === TxType.VOTE">(Vote)</template>
+            <template v-if="params.txType === TxType.UNVOTE">(Unvote)</template>
           </b-button>
         </b-col>
       </b-row>
@@ -90,20 +90,33 @@
       </p>
       <p class="text-center">
         <strong>Transaction ID:</strong><br>
-        <small>{{ txId }}</small>
+        <small></small>
+        <b-button
+          size="sm"
+          variant="light"
+          v-clipboard:copy="txId"
+          v-clipboard:success="onTxIdCopied"
+          v-b-tooltip.hover
+          title="Copy"
+          offset="12"
+          class="txid-btn"
+          block
+        >
+          {{ txId }}
+        </b-button>
       </p>
 
       <b-row class="mt-4">
         <b-col sm="12" md="6" class="text-center mb-3 mb-md-0">
-          <b-button variant="outline-success" block @click="onDoneInSuccessModalClick">
-            <template v-if="sentTxType === TxType.TRANSFER">BACK TO DASHBOARD</template>
-            <template v-if="sentTxType === TxType.VOTE">CLOSE</template>
-            <template v-if="sentTxType === TxType.UNVOTE">CLOSE</template>
+          <b-button variant="light" block @click="onDoneInSuccessModalClick">
+            <template v-if="sentTxType === TxType.TRANSFER">Back to Dashboard</template>
+            <template v-if="sentTxType === TxType.VOTE">Close</template>
+            <template v-if="sentTxType === TxType.UNVOTE">Close</template>
           </b-button>
         </b-col>
         <b-col sm="12" md="6" class="text-center">
-          <b-button variant="outline-success" block @click="onOpenExplorerClick">
-            OPEN EXPLORER
+          <b-button variant="primary" block @click="onOpenExplorerClick">
+            Open Explorer
           </b-button>
         </b-col>
       </b-row>
@@ -129,7 +142,7 @@
       <b-row class="mt-4">
         <b-col cols="12" class="text-center mb-3 mb-md-0">
           <b-button variant="outline-primary" @click="() => this.failVisible = false">
-            CLOSE
+            Close
           </b-button>
         </b-col>
       </b-row>
@@ -175,6 +188,17 @@ export default class ConfirmTxModal extends Vue {
 
   get humanAmount(): string {
     return flakesToHuman(this.params.flakesToSend);
+  }
+
+  private onTxIdCopied(): void {
+    this.$bvToast.toast('Tx ID copied', {
+      variant: 'success',
+      toaster: 'b-toaster-bottom-center',
+      solid: true,
+      autoHideDelay: 2000,
+      noCloseButton: true,
+      bodyClass: 'text-center font-weight-bold',
+    });
   }
 
   private async onConfirmSendClick(): Promise<void> {
@@ -272,3 +296,6 @@ export default class ConfirmTxModal extends Vue {
   }
 }
 </script>
+<style lang="sass" scoped>
+@import './ConfirmTXModal.scss';
+</style>

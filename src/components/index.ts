@@ -7,6 +7,7 @@ import { EducateModals } from './EducateModals';
 import { KeystoreModal } from './KeystoreModal';
 import { MnemonicModals } from './MnemonicModals';
 import { NetworkSelector } from './NetworkSelector';
+import { TransactionList } from './TransactionList';
 
 export {
   AddressAliasModal,
@@ -18,4 +19,5 @@ export {
   KeystoreModal,
   MnemonicModals,
   NetworkSelector,
+  TransactionList,
 };

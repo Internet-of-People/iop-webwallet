@@ -36,7 +36,10 @@
     </b-card>
     <b-card no-body class="mt-3 card-with-shadow">
       <b-tabs card>
-        <b-tab title="Vote" active class="m-0 p-0">
+        <b-tab title="Transactions" active>
+          <TransactionList :address="address" />
+        </b-tab>
+        <b-tab title="Vote">
           <DelegatesList
             :votingOnPubKey="votingOnPubKey"
             :addressIndex="addressIndex"
@@ -44,9 +47,6 @@
             @onVote="(publicKey) => {this.votingOnPubKey = publicKey}"
             @onUnVote="() => {this.votingOnPubKey = ''}"
           />
-        </b-tab>
-        <b-tab title="Transactions (soon)" disabled>
-          <b-card-text>SOON</b-card-text>
         </b-tab>
       </b-tabs>
     </b-card>
@@ -56,7 +56,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { sdk } from '@/sdk';
-import { AddressHamburgerMenu, DelegatesList } from '@/components';
+import { AddressHamburgerMenu, DelegatesList, TransactionList } from '@/components';
 import { namespace as inMemory } from '@/store/inmemory';
 import { namespace as persisted } from '@/store/persisted';
 import { VaultState, WalletNetworkInfo } from '@/types';
@@ -72,6 +72,7 @@ interface Delegate {
   components: {
     AddressHamburgerMenu,
     DelegatesList,
+    TransactionList,
   },
 })
 export default class ViewAddress extends Vue {

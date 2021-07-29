@@ -2,9 +2,19 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.0](https://github.com/Internet-of-People/iop-webwallet/0.1.11..0.2.0)
+
+- Transactions tab added [`28b9079`](https://github.com/Internet-of-People/iop-webwallet/commit/28b907972c1f821cc4387aa2e159484dbfe1eb7d)
+- Users can copy tx id; Minor design improvement [`29b226f`](https://github.com/Internet-of-People/iop-webwallet/commit/29b226f8c2d78665ba788722ff028e53b4fc32cf)
+- Use the latest SDK [`55c7e9b`](https://github.com/Internet-of-People/iop-webwallet/commit/55c7e9b458418fe2ed97a8fae255dd32b4ed7415)
+- Update domians [`a196656`](https://github.com/Internet-of-People/iop-webwallet/commit/a196656cc1ba8cec4bd72621093ed5a4c611e409)
+
 #### [0.1.11](https://github.com/Internet-of-People/iop-webwallet/0.1.10..0.1.11)
 
+> 13 May 2021
+
 - Added smartbridge field when sending transaction [`12a26c2`](https://github.com/Internet-of-People/iop-webwallet/commit/12a26c2027a80324696607c6f62f3df4bb9c858f)
+- Release 0.1.11 [`baf686f`](https://github.com/Internet-of-People/iop-webwallet/commit/baf686fa8904d90bed533cd6016784da222fe333)
 
 #### [0.1.10](https://github.com/Internet-of-People/iop-webwallet/0.1.9..0.1.10)
 

@@ -8,7 +8,19 @@
           Hydra Wallet
         </b-navbar-brand>
       </b-navbar>
-      <div class="main-content">
+      <template v-if="wasmNotSupported">
+        <b-container class="mt-3">
+          <b-alert show variant="danger">
+            <h4>Your browser does not support all features of Webassembly.</h4>
+            Please use one of the following browsers:
+            <ul>
+              <li><a href="https://www.mozilla.org/">Firefox</a></li>
+              <li><a href="https://www.google.com/chrome/">Google Chrome</a></li>
+            </ul>
+          </b-alert>
+        </b-container>
+      </template>
+      <div v-else class="main-content">
         <router-view />
       </div>
       <div class="footer mt-5">
@@ -31,9 +43,13 @@ import { AppLoader } from './components/common';
 })
 export default class App extends Vue {
   loading = true;
+  wasmNotSupported = false;
 
   async created(): Promise<void> {
-    await load();
+    const loaded = await load();
+    if (!loaded) {
+      this.wasmNotSupported = true;
+    }
     this.loading = false;
   }
 }

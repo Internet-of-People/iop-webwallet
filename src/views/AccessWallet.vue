@@ -145,7 +145,7 @@ export default class AccessWallet extends Vue {
       await this.accessDashboard(
         password,
         this.serializedVault,
-        JSON.parse(this.serializedVault),
+        JSON.parse(this.serializedVault).encryptedSeed,
       );
     } catch (e) {
       this.errorMessage = e;

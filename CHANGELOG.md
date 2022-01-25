@@ -2,9 +2,16 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.2](https://github.com/Internet-of-People/iop-webwallet/0.2.1..0.2.2)
+
+- Fix vault state in persisted storage when using keystore file [`3cd2f5a`](https://github.com/Internet-of-People/iop-webwallet/commit/3cd2f5a3355f0ab1c2bac6613ecc5a44e1b6b309)
+
 #### [0.2.1](https://github.com/Internet-of-People/iop-webwallet/0.2.0..0.2.1)
 
+> 24 August 2021
+
 - Check if the browser supports wasm [`81c8d26`](https://github.com/Internet-of-People/iop-webwallet/commit/81c8d262c49250a23e701226e077224cc756574e)
+- Release 0.2.1 [`1cbf88f`](https://github.com/Internet-of-People/iop-webwallet/commit/1cbf88f8e12b3bdfb08af1d7cd6a93af75cc950a)
 
 #### [0.2.0](https://github.com/Internet-of-People/iop-webwallet/0.1.11..0.2.0)
 

@@ -7,7 +7,7 @@ import { PersistedState } from '@/store/persisted/types';
 import { namespace as persisted } from '@/store/persisted';
 import { networkKindToCoin, networkKindToNetworkInfo, networkKindToNetworkURL } from './convert';
 
-const REWIND_GAP = 5;
+const REWIND_GAP = 50;
 
 export interface NetworkAccess {
   api: Types.Layer1.IApi;

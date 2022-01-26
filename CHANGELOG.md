@@ -2,8 +2,16 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.3](https://github.com/Internet-of-People/iop-webwallet/0.2.2..0.2.3)
+
+- Fix if key is not defind while rewind [`3d58a26`](https://github.com/Internet-of-People/iop-webwallet/commit/3d58a269451af8b7d555b19024b86278e302ddb5)
+- Increase rewind gap to 50 [`feb99b4`](https://github.com/Internet-of-People/iop-webwallet/commit/feb99b4ec4e70794034607778b882bb7e9558621)
+
 #### [0.2.2](https://github.com/Internet-of-People/iop-webwallet/0.2.1..0.2.2)
 
+> 25 January 2022
+
+- Release 0.2.2 [`9f477ee`](https://github.com/Internet-of-People/iop-webwallet/commit/9f477eeb190a492b21ce767d03dab51efd2198e5)
 - Fix vault state in persisted storage when using keystore file [`3cd2f5a`](https://github.com/Internet-of-People/iop-webwallet/commit/3cd2f5a3355f0ab1c2bac6613ecc5a44e1b6b309)
 
 #### [0.2.1](https://github.com/Internet-of-People/iop-webwallet/0.2.0..0.2.1)

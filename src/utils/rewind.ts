@@ -58,6 +58,14 @@ export const rewindNetworkToState = async (
   /* eslint-disable no-constant-condition */
   while (true) {
     const key = networkAccess.account.pub.key(index);
+    if (!key) {
+      index += 1;
+      numOfEmptyInARow += 1;
+      if (numOfEmptyInARow >= REWIND_GAP) {
+        break;
+      }
+      continue;
+    }
     /* eslint-disable no-await-in-loop */
     const wallet = await networkAccess.api.getWallet(key.address);
     const balance = wallet.isPresent() ? wallet.get().balance : '0';

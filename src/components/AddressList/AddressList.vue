@@ -1,6 +1,13 @@
 <template>
   <b-overlay :show="loading || preparingData" rounded="sm" spinner-variant="primary">
     <b-row>
+      <b-col class="text-right mt-2">
+        <b-form-checkbox @change="showDeletedWalletsClick">
+          Show deleted wallets
+        </b-form-checkbox>
+      </b-col>
+    </b-row>
+    <b-row>
       <b-col
         sm="12"
         md="6"
@@ -10,7 +17,10 @@
         v-for="info in addressRows"
         class="mt-3"
       >
-        <b-card @click="onCardClicked(info.accountIndex, info.addressIndex, $event)">
+        <b-card
+          :class="{deleted: info.deleted}"
+          @click="onCardClicked(info.accountIndex, info.addressIndex, $event)"
+        >
           <b-card-title class="mb-0">
             <b-row no-gutters>
               <b-col cols="10" class="text-truncate text-primary">
@@ -64,6 +74,7 @@ export default class AddressList extends Vue {
   private vault: any;
   private account: any;
   private addressRows: Array<AddressListRowInfo> = [];
+  private showDeletedWallets = false;
 
   get ticker(): string {
     return this.selectedNetwork.ticker;
@@ -81,8 +92,13 @@ export default class AddressList extends Vue {
     this.rebuildAddressRows();
   }
 
+  private showDeletedWalletsClick(checked: boolean): void {
+    this.showDeletedWallets = checked;
+    this.rebuildAddressRows();
+  }
+
   private rebuildAddressRows(): void {
-    this.addressRows = buildRowsFromState(this.account, this.$store);
+    this.addressRows = buildRowsFromState(this.account, this.$store, this.showDeletedWallets);
     this.loading = false;
   }
 

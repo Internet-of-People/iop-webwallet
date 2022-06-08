@@ -8,6 +8,7 @@ import { AddressListRowInfo } from './types';
 export const buildRowsFromState = (
   account: any,
   stateStore: Store<WalletRootState>,
+  showDeleted = false,
 ): Array<AddressListRowInfo> => {
   const persistedState: PersistedState = ((stateStore.state as any)[persisted] as PersistedState);
   const walletState = persistedState.vaultState[persistedState.selectedWalletHash!];
@@ -18,7 +19,7 @@ export const buildRowsFromState = (
   let totalFlakes = 0n;
   const addressRows: Array<AddressListRowInfo> = [];
   for (const [addressIndex, addressInfo] of accountState) {
-    if (addressInfo.deleted) {
+    if (addressInfo.deleted && !showDeleted) {
       continue;
     }
     const { address } = account.pub.key(parseInt(addressIndex, 10));
@@ -29,6 +30,7 @@ export const buildRowsFromState = (
       balance: flakesToHuman(BigInt(addressInfo.balance)),
       accountIndex: 0,
       addressIndex: parseInt(addressIndex, 10),
+      deleted: addressInfo.deleted,
     });
     totalFlakes += BigInt(addressInfo.balance);
   }

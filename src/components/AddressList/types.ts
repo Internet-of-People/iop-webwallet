@@ -4,4 +4,5 @@ export interface AddressListRowInfo {
   balance: string;
   accountIndex: number;
   addressIndex: number;
+  deleted: boolean;
 }

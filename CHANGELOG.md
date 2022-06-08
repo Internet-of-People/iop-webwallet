@@ -2,8 +2,15 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.4](https://github.com/Internet-of-People/iop-webwallet/0.2.3..0.2.4)
+
+- Be able to see deleted addresses [`8328320`](https://github.com/Internet-of-People/iop-webwallet/commit/83283208824cef5b2cf555dae1cdca26c738896b)
+
 #### [0.2.3](https://github.com/Internet-of-People/iop-webwallet/0.2.2..0.2.3)
 
+> 26 January 2022
+
+- Release 0.2.3 [`dd48d5b`](https://github.com/Internet-of-People/iop-webwallet/commit/dd48d5bc8f859aa0439f71aff9d5d1be83e5f9e0)
 - Fix if key is not defind while rewind [`3d58a26`](https://github.com/Internet-of-People/iop-webwallet/commit/3d58a269451af8b7d555b19024b86278e302ddb5)
 - Increase rewind gap to 50 [`feb99b4`](https://github.com/Internet-of-People/iop-webwallet/commit/feb99b4ec4e70794034607778b882bb7e9558621)
 

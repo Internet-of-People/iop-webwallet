@@ -2,9 +2,16 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.5](https://github.com/Internet-of-People/iop-webwallet/0.2.4..0.2.5)
+
+- Show invalid password instead of cryptic message [`b4330fd`](https://github.com/Internet-of-People/iop-webwallet/commit/b4330fd4669b0fb9ab795034b9102afc444528a6)
+
 #### [0.2.4](https://github.com/Internet-of-People/iop-webwallet/0.2.3..0.2.4)
 
+> 8 June 2022
+
 - Be able to see deleted addresses [`8328320`](https://github.com/Internet-of-People/iop-webwallet/commit/83283208824cef5b2cf555dae1cdca26c738896b)
+- Release 0.2.4 [`79d3be9`](https://github.com/Internet-of-People/iop-webwallet/commit/79d3be933ce39aa9d0e7869b47813f6a751540ba)
 
 #### [0.2.3](https://github.com/Internet-of-People/iop-webwallet/0.2.2..0.2.3)
 

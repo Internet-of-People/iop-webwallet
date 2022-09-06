@@ -148,7 +148,12 @@ export default class AccessWallet extends Vue {
         JSON.parse(this.serializedVault).encryptedSeed,
       );
     } catch (e) {
-      this.errorMessage = e;
+      if (e?.message.indexOf('Ciphertext was tampered with') > -1) {
+        this.errorMessage = 'Invalid password';
+      } else {
+        this.errorMessage = e;
+      }
+
       this.$bvModal.show('error-modal');
     }
   }

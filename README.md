@@ -1,6 +1,6 @@
 # Hydra Webwallet
 
-This repository contains the source code of the latest Hydra webwallet running at <https://wallet.hydraledger.io>.
+This repository contains the source code of the latest Hydra webwallet running at <https://wallet.hydraledger.tech>.
 
 Please visit our developer portal at <https://developer.iop.technology> to get more information about Hydra, DAC and IoP.
 
